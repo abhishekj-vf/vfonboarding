@@ -317,10 +317,7 @@ a {
   flex-direction: column;
   overflow: hidden;
   padding: clamp(24px, 3.7vw, 58px) clamp(24px, 5vw, 80px);
-  background:
-    linear-gradient(90deg, rgba(255, 250, 242, 0.07), rgba(255, 250, 242, 0.31)),
-    rgba(255, 250, 242, 0.1);
-  border-left: 1px solid rgba(255, 255, 255, 0.28);
+  background: transparent;
 }
 
 .mobile-brand {
@@ -516,16 +513,6 @@ a {
   z-index: 2;
   width: min(100%, 590px);
   margin: auto;
-  padding: clamp(34px, 4vw, 50px);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 34px;
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.74), rgba(255, 250, 242, 0.48)),
-    rgba(255, 250, 242, 0.4);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.92),
-    0 28px 80px rgba(47, 27, 54, 0.11);
-  backdrop-filter: blur(26px) saturate(128%);
 }
 
 .form-kicker {
@@ -1027,8 +1014,7 @@ a {
   .onboarding-panel {
     min-height: 100svh;
     padding: 21px clamp(19px, 5vw, 40px) 30px;
-    border-left: 0;
-    background: rgba(255, 250, 242, 0.1);
+    background: transparent;
   }
 
   .mobile-brand {
@@ -1076,9 +1062,22 @@ a {
   }
 
   .form-wrap {
-    margin: 0 auto;
-    padding: clamp(32px, 6vh, 52px) clamp(24px, 7vw, 42px);
-    border-radius: 30px;
+    width: 100%;
+    margin: auto 0 0;
+  }
+
+  .input-shell {
+    min-height: 48px;
+  }
+
+  .input-shell input {
+    height: 46px;
+  }
+
+  .primary-button,
+  .otp-input {
+    min-height: 48px;
+    height: 48px;
   }
 
   .form-title {
@@ -1095,11 +1094,6 @@ a {
 
   .mobile-brand {
     margin-bottom: 16px;
-  }
-
-  .form-wrap {
-    padding: 30px 20px 26px;
-    border-radius: 26px;
   }
 
   .form-title {

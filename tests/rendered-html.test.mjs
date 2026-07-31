@@ -83,7 +83,7 @@ test("keeps the interactive experience modular and production-ready", async () =
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     stat(new URL("../public/download-on-app-store.svg", import.meta.url)),
     stat(new URL("../public/get-it-on-google-play.png", import.meta.url)),
-    stat(new URL("../public/hokusai-great-wave.jpg", import.meta.url)),
+    stat(new URL("../public/van-gogh-irises.jpg", import.meta.url)),
   ]);
 
   assert.match(page, /<SignupExperience \/>/);

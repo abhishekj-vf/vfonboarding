@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 export type ShaderVariant = "newsprint" | "nocturne" | "tritone";
 
-const ARTWORK_ASPECT = 3854 / 2594;
+const ARTWORK_ASPECT = 4000 / 3172;
 
 const vertexShaderSource = `
   attribute vec2 a_position;
@@ -258,7 +258,7 @@ export function HolographicShader({
 
     const artwork = new Image();
     artwork.decoding = "async";
-    artwork.src = "/hokusai-great-wave.jpg";
+    artwork.src = "/van-gogh-irises.jpg";
     artwork.onload = () => {
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
@@ -368,7 +368,7 @@ export function HolographicShader({
     <canvas
       ref={canvasRef}
       className={`holographic-canvas ${className}`.trim()}
-      aria-label="Interactive print shader using Hokusai's Great Wave"
+      aria-label="Interactive print shader using Van Gogh's Irises"
       role="img"
     />
   );

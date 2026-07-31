@@ -41,9 +41,8 @@ print modes all process the same locally bundled artwork:
 Pointer movement shifts the print registration subtly. Form completion changes
 the dot scale, drift, and interaction intensity.
 
-The source artwork is Katsushika Hokusai’s *Under the Wave off Kanagawa (The
-Great Wave)*, 1830/33. The local image comes from [The Metropolitan Museum of
-Art Open Access collection](https://www.metmuseum.org/art/collection/search/45434)
+The source artwork is Vincent van Gogh’s *Irises*, 1890. The local image comes
+from [The Metropolitan Museum of Art Open Access collection](https://www.metmuseum.org/art/collection/search/436528)
 and is marked public domain.
 
 ## Project structure
