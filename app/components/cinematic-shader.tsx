@@ -94,9 +94,9 @@ const fragmentShader = `
     float signalNoise = random(floor(gl_FragCoord.xy * 0.13) + floor(u_time * 4.0));
     float fracture = mix(blocks, signalNoise, 0.42);
     float transition = smoothstep(
-      u_transition - 0.14 - u_signal * 0.06,
-      u_transition + 0.14,
-      fracture
+      fracture - 0.14 - u_signal * 0.06,
+      fracture + 0.14,
+      u_transition
     );
     vec3 art = mix(outgoing, incoming, transition);
 
