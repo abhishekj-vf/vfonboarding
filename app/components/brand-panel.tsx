@@ -1,8 +1,13 @@
+import { Lightning, Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { BrandMark } from "./brand-mark";
+import { HolographicShader } from "./holographic-shader";
 
 export function BrandPanel() {
   return (
     <section className="brand-panel" aria-label="About the creator community">
+      <HolographicShader />
+      <div className="holographic-wash" aria-hidden="true" />
+
       <header className="brand-header">
         <BrandMark />
         <span className="brand-chip">Creator club · India</span>
@@ -20,8 +25,14 @@ export function BrandPanel() {
         </p>
       </div>
 
-      <span className="floating-note note-one">Collabs, not cold DMs</span>
-      <span className="floating-note note-two">Create. Earn. Repeat.</span>
+      <span className="floating-note note-one">
+        <Sparkle size={15} weight="fill" aria-hidden="true" />
+        Collabs, not cold DMs
+      </span>
+      <span className="floating-note note-two">
+        <Lightning size={15} weight="fill" aria-hidden="true" />
+        Create. Earn. Repeat.
+      </span>
 
       <div className="creator-proof">
         <div className="avatar-stack" aria-hidden="true">

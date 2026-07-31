@@ -1,11 +1,22 @@
 "use client";
 
 import {
-  FormEvent,
-  KeyboardEvent,
-  useRef,
-  useState,
-} from "react";
+  ArrowLeft,
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  CheckCircle,
+  Eye,
+  GraduationCap,
+  InstagramLogo,
+  LockSimple,
+  Phone,
+  ShieldCheck,
+  Sparkle,
+  UsersThree,
+  WarningCircle,
+} from "@phosphor-icons/react";
+import { FormEvent, KeyboardEvent, useRef, useState } from "react";
 import { checkInstagramEligibility, ProfileCheck } from "../lib/eligibility";
 import { BrandMark } from "./brand-mark";
 import { StoreBadges } from "./store-badges";
@@ -155,6 +166,9 @@ export function CreatorOnboarding() {
 
   return (
     <section className="onboarding-panel" aria-label="Creator signup">
+      <div className="ambient-orb ambient-orb-one" aria-hidden="true" />
+      <div className="ambient-orb ambient-orb-two" aria-hidden="true" />
+
       <div className="mobile-brand">
         <BrandMark />
         <span className="brand-chip">Creator club</span>
@@ -168,7 +182,7 @@ export function CreatorOnboarding() {
             onClick={goBack}
             aria-label="Go back"
           >
-            ←
+            <ArrowLeft size={18} weight="bold" aria-hidden="true" />
           </button>
         ) : (
           <span className="back-placeholder" />
@@ -192,24 +206,30 @@ export function CreatorOnboarding() {
       <div className="form-wrap">
         {stage === "profile" && (
           <div>
-            <p className="form-kicker">Start with your @</p>
+            <p className="form-kicker">Start with your profile</p>
             <h2 className="form-title">Let’s see if you’re creator-ready.</h2>
             <p className="form-copy">
-              Drop your Instagram profile below. We’ll do a quick eligibility
-              check—no passwords, no posting permissions.
+              Share your Instagram profile for a quick eligibility check. No
+              password or posting permission required.
             </p>
 
             <div className="requirement-row" aria-label="Eligibility criteria">
-              <span className="requirement">Public profile</span>
-              <span className="requirement">5K+ followers</span>
+              <span className="requirement">
+                <Eye size={14} weight="bold" aria-hidden="true" />
+                Public profile
+              </span>
+              <span className="requirement">
+                <UsersThree size={14} weight="bold" aria-hidden="true" />
+                5K+ followers
+              </span>
             </div>
 
             <form onSubmit={checkProfile} noValidate>
               <div className="field">
                 <label htmlFor="instagram">Instagram profile</label>
                 <div className="input-shell">
-                  <span className="input-prefix" aria-hidden="true">
-                    @
+                  <span className="input-icon" aria-hidden="true">
+                    <InstagramLogo size={20} weight="bold" />
                   </span>
                   <input
                     id="instagram"
@@ -237,29 +257,37 @@ export function CreatorOnboarding() {
 
               {profile?.eligible && (
                 <div className="profile-result" aria-live="polite">
-                  <span className="profile-avatar">
-                    {profile.handle.charAt(0)}
+                  <span className="profile-platform-icon" aria-hidden="true">
+                    <InstagramLogo size={22} weight="duotone" />
                   </span>
                   <span className="profile-result-copy">
-                    <strong>@{profile.handle}</strong>
-                    <span>
-                      {profile.followers.toLocaleString("en-IN")} followers ·
-                      Public
+                    <span className="profile-result-heading">
+                      <strong>@{profile.handle}</strong>
+                      <span className="eligible-pill">
+                        <CheckCircle size={15} weight="fill" aria-hidden="true" />
+                        Eligible
+                      </span>
+                    </span>
+                    <span className="profile-metrics">
+                      <span>
+                        {profile.followers.toLocaleString("en-IN")} followers
+                      </span>
+                      <span className="metric-divider" aria-hidden="true" />
+                      <span>Public profile</span>
                     </span>
                   </span>
-                  <span className="eligible-pill">Eligible</span>
                 </div>
               )}
 
               {profile && !profile.eligible && !profile.hasExistingAccount && (
                 <div className="blocked-card" aria-live="polite">
                   <span className="blocked-icon" aria-hidden="true">
-                    !
+                    <WarningCircle size={22} weight="fill" />
                   </span>
                   <h3>
                     {profile.reason === "private"
                       ? "Your profile is private"
-                      : "Keep growing—we see you"}
+                      : "Keep growing. We see you."}
                   </h3>
                   <p>
                     {profile.reason === "private"
@@ -271,7 +299,8 @@ export function CreatorOnboarding() {
                     type="button"
                     onClick={resetProfile}
                   >
-                    Try another profile →
+                    Try another profile
+                    <ArrowRight size={15} weight="bold" aria-hidden="true" />
                   </button>
                 </div>
               )}
@@ -286,14 +315,17 @@ export function CreatorOnboarding() {
                     {checking ? (
                       <>
                         <span className="spinner" aria-hidden="true" />
-                        Checking your profile…
+                        Checking your profile
                       </>
                     ) : (
                       <>
                         Check my eligibility
-                        <span className="button-arrow" aria-hidden="true">
-                          →
-                        </span>
+                        <ArrowRight
+                          className="button-arrow"
+                          size={18}
+                          weight="bold"
+                          aria-hidden="true"
+                        />
                       </>
                     )}
                   </button>
@@ -305,15 +337,19 @@ export function CreatorOnboarding() {
                   type="button"
                   onClick={continueToDetails}
                 >
-                  I’m in—continue
-                  <span className="button-arrow" aria-hidden="true">
-                    →
-                  </span>
+                  Continue
+                  <ArrowRight
+                    className="button-arrow"
+                    size={18}
+                    weight="bold"
+                    aria-hidden="true"
+                  />
                 </button>
               )}
 
               {!profile && (
                 <p className="microcopy">
+                  <LockSimple size={14} weight="bold" aria-hidden="true" />
                   Your profile info is used only for eligibility
                 </p>
               )}
@@ -334,6 +370,9 @@ export function CreatorOnboarding() {
               <div className="field">
                 <label htmlFor="college">College or university</label>
                 <div className="input-shell college-input">
+                  <span className="input-icon" aria-hidden="true">
+                    <GraduationCap size={20} weight="bold" />
+                  </span>
                   <input
                     id="college"
                     list="college-list"
@@ -356,6 +395,9 @@ export function CreatorOnboarding() {
               <div className="field">
                 <label htmlFor="mobile">Mobile number</label>
                 <div className="input-shell">
+                  <span className="input-icon" aria-hidden="true">
+                    <Phone size={19} weight="bold" />
+                  </span>
                   <span className="country-prefix" aria-hidden="true">
                     +91
                   </span>
@@ -384,12 +426,16 @@ export function CreatorOnboarding() {
               )}
 
               <button className="primary-button" type="submit">
-                Send me the code
-                <span className="button-arrow" aria-hidden="true">
-                  →
-                </span>
+                Send code
+                <ArrowRight
+                  className="button-arrow"
+                  size={18}
+                  weight="bold"
+                  aria-hidden="true"
+                />
               </button>
               <p className="microcopy">
+                <ShieldCheck size={14} weight="bold" aria-hidden="true" />
                 We’ll never add you to a noisy WhatsApp group
               </p>
             </form>
@@ -437,18 +483,25 @@ export function CreatorOnboarding() {
 
               <p className="resend-line">
                 Didn’t get it?{" "}
-                <button type="button" onClick={() => setOtp(["", "", "", "", "", ""])}>
+                <button
+                  type="button"
+                  onClick={() => setOtp(["", "", "", "", "", ""])}
+                >
                   Send again
                 </button>
               </p>
 
               <button className="primary-button" type="submit">
-                Verify & join
-                <span className="button-arrow" aria-hidden="true">
-                  →
-                </span>
+                Verify and join
+                <ArrowRight
+                  className="button-arrow"
+                  size={18}
+                  weight="bold"
+                  aria-hidden="true"
+                />
               </button>
               <p className="microcopy">
+                <LockSimple size={14} weight="bold" aria-hidden="true" />
                 For this preview, any 6 digits will work
               </p>
             </form>
@@ -458,7 +511,7 @@ export function CreatorOnboarding() {
         {stage === "success" && (
           <div className="success-wrap" aria-live="polite">
             <div className="success-burst" aria-hidden="true">
-              ✓
+              <Check size={34} weight="bold" />
             </div>
             <p className="form-kicker">Welcome to the inner circle</p>
             <h2 className="form-title">You’re officially creator-ready.</h2>
@@ -469,7 +522,8 @@ export function CreatorOnboarding() {
             <p className="download-label">Get the app</p>
             <StoreBadges />
             <p className="community-note">
-              See you on the inside, @{profile?.handle || "creator"} ✦
+              See you on the inside, @{profile?.handle || "creator"}
+              <Sparkle size={13} weight="fill" aria-hidden="true" />
             </p>
           </div>
         )}
@@ -477,9 +531,9 @@ export function CreatorOnboarding() {
         {stage === "existing" && (
           <div className="success-wrap" aria-live="polite">
             <div className="success-burst" aria-hidden="true">
-              ↗
+              <ArrowUpRight size={32} weight="bold" />
             </div>
-            <p className="form-kicker">We know that @</p>
+            <p className="form-kicker">We know that profile</p>
             <h2 className="form-title">You’re already one of us.</h2>
             <p className="form-copy">
               An account already exists for @{profile?.handle}. Open the app and
@@ -489,6 +543,7 @@ export function CreatorOnboarding() {
             <StoreBadges />
             <button className="text-button" type="button" onClick={resetProfile}>
               Check a different profile
+              <ArrowRight size={15} weight="bold" aria-hidden="true" />
             </button>
           </div>
         )}

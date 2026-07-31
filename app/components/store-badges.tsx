@@ -10,13 +10,11 @@ export function StoreBadges() {
         rel="noreferrer"
         aria-label={`Download ${brand.name} on the App Store`}
       >
-        <span className="store-icon" aria-hidden="true">
-          
-        </span>
-        <span>
-          <small>Download on the</small>
-          <strong>App Store</strong>
-        </span>
+        <img
+          className="app-store-badge"
+          src="/download-on-app-store.svg"
+          alt=""
+        />
       </a>
       <a
         className="store-badge"
@@ -25,13 +23,11 @@ export function StoreBadges() {
         rel="noreferrer"
         aria-label={`Get ${brand.name} on Google Play`}
       >
-        <span className="store-icon" aria-hidden="true">
-          <span className="play-icon" />
-        </span>
-        <span>
-          <small>GET IT ON</small>
-          <strong>Google Play</strong>
-        </span>
+        <img
+          className="google-play-badge"
+          src="/get-it-on-google-play.png"
+          alt=""
+        />
       </a>
     </div>
   );

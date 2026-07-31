@@ -39,7 +39,7 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: `${siteUrl}/og.png`,
+          url: `${siteUrl}/og-holographic.png`,
           width: 1731,
           height: 909,
           alt: "Your reach deserves a stage — ViralFission",
@@ -50,7 +50,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: [`${siteUrl}/og.png`],
+      images: [`${siteUrl}/og-holographic.png`],
     },
   };
 }
