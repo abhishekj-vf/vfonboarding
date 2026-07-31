@@ -1,13 +1,9 @@
 import { Lightning, Sparkle } from "@phosphor-icons/react/dist/ssr";
 import { BrandMark } from "./brand-mark";
-import { HolographicShader } from "./holographic-shader";
 
 export function BrandPanel() {
   return (
     <section className="brand-panel" aria-label="About the creator community">
-      <HolographicShader />
-      <div className="holographic-wash" aria-hidden="true" />
-
       <header className="brand-header">
         <BrandMark />
         <span className="brand-chip">Creator club · India</span>

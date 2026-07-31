@@ -40,6 +40,11 @@ test("server-renders the ViralFission creator signup", async () => {
   assert.match(html, /Public profile/);
   assert.match(html, /5K\+ followers/);
   assert.match(html, /holographic-canvas/);
+  assert.equal(
+    (html.match(/holographic-canvas/g) ?? []).length,
+    1,
+    "the page should render one shared shader canvas",
+  );
   assert.match(html, /og-holographic\.png/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
@@ -47,6 +52,7 @@ test("server-renders the ViralFission creator signup", async () => {
 test("keeps the interactive experience modular and production-ready", async () => {
   const [
     page,
+    experience,
     onboarding,
     shader,
     storeBadges,
@@ -54,8 +60,13 @@ test("keeps the interactive experience modular and production-ready", async () =
     packageJson,
     appleBadge,
     googleBadge,
+    artwork,
   ] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/components/signup-experience.tsx", import.meta.url),
+      "utf8",
+    ),
     readFile(
       new URL("../app/components/creator-onboarding.tsx", import.meta.url),
       "utf8",
@@ -72,24 +83,34 @@ test("keeps the interactive experience modular and production-ready", async () =
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     stat(new URL("../public/download-on-app-store.svg", import.meta.url)),
     stat(new URL("../public/get-it-on-google-play.png", import.meta.url)),
+    stat(new URL("../public/hokusai-great-wave.jpg", import.meta.url)),
   ]);
 
-  assert.match(page, /<BrandPanel \/>/);
-  assert.match(page, /<CreatorOnboarding \/>/);
+  assert.match(page, /<SignupExperience \/>/);
   assert.doesNotMatch(page, /"use client"/);
+
+  assert.match(experience, /<HolographicShader/);
+  assert.match(experience, /<BrandPanel \/>/);
+  assert.match(experience, /<CreatorOnboarding/);
 
   assert.match(onboarding, /"use client"/);
   assert.match(onboarding, /@phosphor-icons\/react/);
   assert.match(onboarding, /type Stage = "profile" \| "details" \| "otp"/);
+  assert.doesNotMatch(onboarding, /<HolographicShader/);
+  assert.match(onboarding, /\["newsprint", "nocturne", "tritone"\]/);
 
   assert.match(shader, /fragmentShaderSource/);
   assert.match(shader, /getContext\("webgl"/);
   assert.match(shader, /prefers-reduced-motion/);
+  assert.match(shader, /u_artwork/);
+  assert.match(shader, /bayer4/);
+  assert.match(shader, /halftoneMask/);
 
   assert.match(storeBadges, /download-on-app-store\.svg/);
   assert.match(storeBadges, /get-it-on-google-play\.png/);
   assert.ok(appleBadge.size > 1_000);
   assert.ok(googleBadge.size > 1_000);
+  assert.ok(artwork.size > 1_000_000);
 
   assert.match(layout, /og-holographic\.png/);
   assert.match(packageJson, /"@phosphor-icons\/react"/);

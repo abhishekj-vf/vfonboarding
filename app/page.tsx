@@ -1,11 +1,5 @@
-import { BrandPanel } from "./components/brand-panel";
-import { CreatorOnboarding } from "./components/creator-onboarding";
+import { SignupExperience } from "./components/signup-experience";
 
 export default function Home() {
-  return (
-    <main className="site-shell">
-      <BrandPanel />
-      <CreatorOnboarding />
-    </main>
-  );
+  return <SignupExperience />;
 }

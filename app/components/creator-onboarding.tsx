@@ -16,13 +16,16 @@ import {
   UsersThree,
   WarningCircle,
 } from "@phosphor-icons/react";
-import { FormEvent, KeyboardEvent, useRef, useState } from "react";
+import {
+  FormEvent,
+  KeyboardEvent,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { checkInstagramEligibility, ProfileCheck } from "../lib/eligibility";
 import { BrandMark } from "./brand-mark";
-import {
-  HolographicShader,
-  type ShaderVariant,
-} from "./holographic-shader";
+import { type ShaderVariant } from "./holographic-shader";
 import { StoreBadges } from "./store-badges";
 
 type Stage = "profile" | "details" | "otp" | "success" | "existing";
@@ -56,7 +59,17 @@ const stageStep: Record<Stage, number> = {
   existing: 1,
 };
 
-export function CreatorOnboarding() {
+type CreatorOnboardingProps = {
+  shaderMode: ShaderVariant;
+  onShaderModeChange: (mode: ShaderVariant) => void;
+  onShaderSignalChange: (signal: number) => void;
+};
+
+export function CreatorOnboarding({
+  shaderMode,
+  onShaderModeChange,
+  onShaderSignalChange,
+}: CreatorOnboardingProps) {
   const [stage, setStage] = useState<Stage>("profile");
   const [handle, setHandle] = useState("");
   const [profile, setProfile] = useState<ProfileCheck | null>(null);
@@ -65,7 +78,6 @@ export function CreatorOnboarding() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
-  const [shaderMode, setShaderMode] = useState<ShaderVariant>("aurora");
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const step = stageStep[stage];
@@ -77,6 +89,10 @@ export function CreatorOnboarding() {
         : stage === "otp"
           ? otp.filter(Boolean).length / otp.length
           : 1;
+
+  useEffect(() => {
+    onShaderSignalChange(shaderSignal);
+  }, [onShaderSignalChange, shaderSignal]);
 
   function goBack() {
     setError("");
@@ -182,27 +198,19 @@ export function CreatorOnboarding() {
       className={`onboarding-panel shader-${shaderMode}`}
       aria-label="Creator signup"
     >
-      <HolographicShader
-        className="onboarding-shader"
-        variant={shaderMode}
-        signal={shaderSignal}
-      />
-      <div className="ambient-orb ambient-orb-one" aria-hidden="true" />
-      <div className="ambient-orb ambient-orb-two" aria-hidden="true" />
-
       <div className="mobile-brand">
         <BrandMark />
         <span className="brand-chip">Creator club</span>
       </div>
 
       <div className="shader-switcher" aria-label="Choose a shader">
-        <span className="shader-switcher-label">Shader</span>
-        {(["aurora", "midnight", "prism"] as const).map((mode) => (
+        <span className="shader-switcher-label">Print mode</span>
+        {(["newsprint", "nocturne", "tritone"] as const).map((mode) => (
           <button
             key={mode}
             type="button"
             className={shaderMode === mode ? "is-active" : undefined}
-            onClick={() => setShaderMode(mode)}
+            onClick={() => onShaderModeChange(mode)}
             aria-pressed={shaderMode === mode}
           >
             <span className={`shader-swatch ${mode}`} aria-hidden="true" />
