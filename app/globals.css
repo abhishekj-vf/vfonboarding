@@ -340,9 +340,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .final-stage > p { display: flex; align-items: center; gap: 5px; margin: 0; color: #fff; font-size: .79rem; font-weight: 800; }
 
 .store-links { display: flex; flex-wrap: wrap; gap: 10px; }
-.store-badge { display: block; line-height: 0; transition: transform 180ms ease; }
+.store-badge {
+  height: 46px;
+  display: flex;
+  align-items: stretch;
+  line-height: 0;
+  transition: transform 180ms ease;
+}
 .store-badge:hover { transform: translateY(-2px); }
-.app-store-badge, .google-play-badge { height: 46px; width: auto; display: block; }
+.app-store-badge, .google-play-badge { height: 100%; width: auto; display: block; }
 
 .back-control {
   position: absolute;
@@ -357,6 +363,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   font-size: .72rem;
   font-weight: 1000;
   cursor: pointer;
+  z-index: 1;
 }
 
 @media (max-width: 780px) {
@@ -383,9 +390,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .otp-input { height: 48px; }
   .profile-response { grid-template-columns: auto 1fr; }
   .profile-response button { grid-column: 2; width: max-content; }
-  .back-control { left: 18px; bottom: 22px; }
-  .back-control + * { margin-bottom: 20px; }
-  .app-store-badge, .google-play-badge { height: 42px; }
+  .back-control { left: 18px; top: 148px; bottom: auto; }
+  .store-badge { height: 42px; }
 }
 
 @media (max-width: 380px) {
