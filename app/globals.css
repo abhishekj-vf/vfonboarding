@@ -165,28 +165,26 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .signup-stage {
-  width: min(100%, 1260px);
-  display: grid;
-  grid-template-columns: minmax(150px, .54fr) minmax(360px, 1fr);
-  gap: clamp(32px, 9vw, 172px);
-  align-items: end;
+  position: relative;
+  width: 100%;
+  display: block;
   margin-top: auto;
   padding-top: 48px;
 }
 
 .stage-aside {
+  position: absolute;
+  left: 0;
+  bottom: 8px;
   display: grid;
-  align-self: stretch;
-  align-content: end;
   gap: 10px;
-  padding-bottom: 8px;
   color: rgba(255,255,255,0.78);
   font-size: 0.61rem;
   font-weight: 900;
   letter-spacing: 0.13em;
 }
 
-.stage-content { max-width: 590px; }
+.stage-content { width: min(590px, 100%); margin-inline: auto; }
 
 .stage-copy {
   max-width: 480px;
@@ -377,9 +375,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .hero-statement { max-width: 100%; margin-top: clamp(46px, 9vh, 82px); }
   .hero-statement p { margin-bottom: 11px; font-size: .56rem; }
   .hero-statement h1 { max-width: 360px; font-size: clamp(3.7rem, 15.1vw, 5.4rem); line-height: .83; }
-  .signup-stage { grid-template-columns: 1fr; gap: 17px; padding-top: 26px; }
-  .stage-aside { display: flex; justify-content: space-between; padding: 0; font-size: .5rem; }
-  .stage-content { max-width: none; }
+  .signup-stage { display: grid; gap: 17px; padding-top: 26px; }
+  .stage-aside { position: static; display: flex; justify-content: space-between; padding: 0; font-size: .5rem; }
+  .stage-content { width: auto; margin: 0; max-width: none; }
   .stage-copy { max-width: 355px; margin-bottom: 17px; font-size: .88rem; }
   .line-input { min-height: 48px; }
   .line-input input { height: 46px; font-size: 1rem; }

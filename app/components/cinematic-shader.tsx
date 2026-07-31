@@ -83,16 +83,14 @@ const fragmentShader = `
 
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    vec2 pointerPull = (u_pointer - 0.5) * (0.014 + u_signal * 0.018);
-    float horizontalJitter = sin(uv.y * 85.0 + u_time * 2.2) * 0.0015;
-    vec2 wave = vec2(horizontalJitter, sin(uv.x * 50.0 - u_time) * 0.001);
+    vec3 outgoing = sampleScene(u_from, uv);
+    vec3 incoming = sampleScene(u_to, uv);
 
-    vec3 outgoing = sampleScene(u_from, uv + pointerPull + wave * (1.0 - u_transition));
-    vec3 incoming = sampleScene(u_to, uv - pointerPull - wave * u_transition);
-
-    float blocks = bayer4(gl_FragCoord.xy * 0.52);
-    float signalNoise = random(floor(gl_FragCoord.xy * 0.13) + floor(u_time * 4.0));
-    float fracture = mix(blocks, signalNoise, 0.42);
+    // An ordered print-screen transition: the scene resolves in dithered blocks,
+    // rather than warping the artwork like water.
+    float blocks = bayer4(floor(gl_FragCoord.xy * 0.38));
+    float signalNoise = random(floor(gl_FragCoord.xy * 0.08) + floor(u_time * 3.0));
+    float fracture = mix(blocks, signalNoise, 0.24);
     float transition = smoothstep(
       fracture - 0.14 - u_signal * 0.06,
       fracture + 0.14,
@@ -101,17 +99,26 @@ const fragmentShader = `
     vec3 art = mix(outgoing, incoming, transition);
 
     float luminance = dot(art, vec3(0.299, 0.587, 0.114));
-    float printGrid = bayer4(gl_FragCoord.xy * (0.7 + u_signal * 0.25));
-    float ink = step(printGrid, 1.0 - luminance);
-    vec3 electricBlue = vec3(0.025, 0.38, 0.95);
-    vec3 hotPaper = vec3(1.0, 0.19, 0.32);
-    vec3 printed = mix(art, mix(electricBlue, hotPaper, uv.x), ink * 0.14);
+    float scale = mix(6.4, 4.2, u_signal);
+    mat2 blueAngle = mat2(0.94, -0.34, 0.34, 0.94);
+    mat2 redAngle = mat2(0.72, -0.69, 0.69, 0.72);
+    mat2 yellowAngle = mat2(0.98, 0.20, -0.20, 0.98);
+    vec2 cellBlue = fract(blueAngle * (gl_FragCoord.xy / scale)) - 0.5;
+    vec2 cellRed = fract(redAngle * (gl_FragCoord.xy / (scale + 0.8))) - 0.5;
+    vec2 cellYellow = fract(yellowAngle * (gl_FragCoord.xy / (scale + 1.7))) - 0.5;
+    float cyanDot = 1.0 - smoothstep(0.16, 0.45, length(cellBlue) + luminance * 0.26);
+    float redDot = 1.0 - smoothstep(0.15, 0.44, length(cellRed) + luminance * 0.20);
+    float yellowDot = 1.0 - smoothstep(0.18, 0.45, length(cellYellow) + luminance * 0.18);
+    vec3 printed = art;
+    printed = mix(printed, vec3(0.03, 0.18, 0.62), cyanDot * 0.20);
+    printed = mix(printed, vec3(0.92, 0.13, 0.27), redDot * 0.13);
+    printed = mix(printed, vec3(0.88, 0.91, 0.09), yellowDot * 0.10);
 
-    float scan = sin((uv.y + u_time * 0.04) * u_resolution.y * 0.58) * 0.025;
-    float pointerHalo = exp(-12.0 * distance(uv, u_pointer));
-    printed += scan;
-    printed += pointerHalo * vec3(0.08, 0.15, 0.24);
-    printed += (random(gl_FragCoord.xy + u_time) - 0.5) * 0.035;
+    float ordered = bayer4(gl_FragCoord.xy) - 0.5;
+    printed = floor(clamp(printed + ordered * 0.08, 0.0, 1.0) * 7.0 + 0.5) / 7.0;
+    float pointerHalo = exp(-17.0 * distance(uv, u_pointer));
+    printed += pointerHalo * vec3(0.055, 0.095, 0.16) * (0.35 + u_signal * 0.65);
+    printed += (random(floor(gl_FragCoord.xy * 0.55) + floor(u_time * 2.0)) - 0.5) * 0.025;
 
     gl_FragColor = vec4(printed, 1.0);
   }
