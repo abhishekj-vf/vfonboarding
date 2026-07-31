@@ -320,6 +320,25 @@ a {
     var(--paper);
 }
 
+.onboarding-shader {
+  z-index: -3;
+  opacity: 0.42;
+  filter: saturate(125%) brightness(1.03);
+  transition:
+    opacity 350ms ease,
+    filter 350ms ease;
+}
+
+.shader-midnight .onboarding-shader {
+  opacity: 0.82;
+  filter: saturate(145%) brightness(0.78);
+}
+
+.shader-prism .onboarding-shader {
+  opacity: 0.62;
+  filter: saturate(132%) brightness(1.02);
+}
+
 .ambient-orb {
   position: absolute;
   z-index: -1;
@@ -361,12 +380,87 @@ a {
   display: none;
 }
 
+.shader-switcher {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.62);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 14px 34px rgba(37, 19, 47, 0.1);
+  backdrop-filter: blur(22px) saturate(150%);
+  transform: translateX(-50%);
+}
+
+.shader-switcher-label {
+  padding: 0 8px;
+  color: rgba(37, 19, 47, 0.58);
+  font-size: 0.64rem;
+  font-weight: 1000;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.shader-switcher button {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 999px;
+  color: rgba(37, 19, 47, 0.62);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.69rem;
+  font-weight: 900;
+  text-transform: capitalize;
+  transition:
+    color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.shader-switcher button.is-active {
+  color: white;
+  background: #151217;
+  box-shadow: 0 6px 16px rgba(21, 18, 23, 0.18);
+}
+
+.shader-swatch {
+  width: 9px;
+  height: 9px;
+  flex: none;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(37, 19, 47, 0.08);
+}
+
+.shader-swatch.aurora {
+  background: linear-gradient(135deg, #a97df4, #72e8e8, #dfff72);
+}
+
+.shader-swatch.midnight {
+  background: linear-gradient(135deg, #120c47, #0ac2eb, #eb1a91);
+}
+
+.shader-swatch.prism {
+  background: linear-gradient(135deg, #fff, #7fdaf3, #be72ea);
+}
+
 .flow-nav {
   position: relative;
   z-index: 2;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 16px;
   min-height: 42px;
 }
 
@@ -398,6 +492,20 @@ a {
 .back-placeholder {
   width: 42px;
   height: 42px;
+  flex: none;
+}
+
+.progress-group {
+  min-width: 0;
+  flex: 1;
+  display: grid;
+  gap: 8px;
+}
+
+.progress-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .progress-label {
@@ -408,19 +516,52 @@ a {
   text-transform: uppercase;
 }
 
+.progress-percent {
+  color: rgba(37, 19, 47, 0.55);
+  font-size: 0.7rem;
+  font-weight: 1000;
+  font-variant-numeric: tabular-nums;
+}
+
 .progress-track {
-  width: 86px;
-  height: 5px;
+  position: relative;
+  width: 100%;
+  height: 7px;
   overflow: hidden;
   border-radius: 99px;
-  background: rgba(55, 28, 68, 0.12);
+  background: rgba(37, 19, 47, 0.13);
+  box-shadow: inset 0 1px 2px rgba(37, 19, 47, 0.08);
 }
 
 .progress-fill {
+  position: relative;
+  display: block;
   height: 100%;
   border-radius: inherit;
-  background: #151117;
-  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  background: linear-gradient(90deg, #151217, #7043a5 45%, #53cfd5);
+  box-shadow: 0 0 16px rgba(104, 67, 165, 0.28);
+  transition: width 520ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.progress-fill::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.65),
+    transparent
+  );
+  transform: translateX(-100%);
+  animation: progress-sheen 2.4s ease-in-out infinite;
+}
+
+@keyframes progress-sheen {
+  55%,
+  100% {
+    transform: translateX(120%);
+  }
 }
 
 .form-wrap {
@@ -945,11 +1086,26 @@ a {
     background: transparent;
   }
 
+  .onboarding-shader {
+    opacity: 0.74;
+    filter: saturate(138%) brightness(1.03);
+  }
+
+  .shader-midnight .onboarding-shader {
+    opacity: 0.93;
+    filter: saturate(150%) brightness(0.72);
+  }
+
+  .shader-prism .onboarding-shader {
+    opacity: 0.84;
+    filter: saturate(138%) brightness(1.02);
+  }
+
   .mobile-brand {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 32px;
+    margin-bottom: 18px;
   }
 
   .mobile-brand .brand-monogram {
@@ -965,12 +1121,28 @@ a {
 
   .flow-nav {
     min-height: 38px;
+    margin-bottom: 18px;
   }
 
   .back-button,
   .back-placeholder {
     width: 38px;
     height: 38px;
+  }
+
+  .shader-switcher {
+    position: relative;
+    left: auto;
+    bottom: auto;
+    width: 100%;
+    justify-content: center;
+    margin: 0 0 16px;
+    transform: none;
+  }
+
+  .shader-switcher button {
+    flex: 1;
+    justify-content: center;
   }
 
   .form-wrap {
@@ -992,7 +1164,7 @@ a {
   }
 
   .mobile-brand {
-    margin-bottom: 24px;
+    margin-bottom: 16px;
   }
 
   .form-wrap {
@@ -1016,6 +1188,15 @@ a {
 
   .otp-input {
     border-radius: 11px;
+  }
+
+  .shader-switcher-label {
+    display: none;
+  }
+
+  .shader-switcher button {
+    padding-right: 7px;
+    padding-left: 7px;
   }
 }
 

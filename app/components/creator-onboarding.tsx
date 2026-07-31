@@ -19,6 +19,10 @@ import {
 import { FormEvent, KeyboardEvent, useRef, useState } from "react";
 import { checkInstagramEligibility, ProfileCheck } from "../lib/eligibility";
 import { BrandMark } from "./brand-mark";
+import {
+  HolographicShader,
+  type ShaderVariant,
+} from "./holographic-shader";
 import { StoreBadges } from "./store-badges";
 
 type Stage = "profile" | "details" | "otp" | "success" | "existing";
@@ -61,9 +65,18 @@ export function CreatorOnboarding() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState("");
+  const [shaderMode, setShaderMode] = useState<ShaderVariant>("aurora");
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const step = stageStep[stage];
+  const shaderSignal =
+    stage === "profile"
+      ? Math.min(handle.length / 18, 1)
+      : stage === "details"
+        ? Math.min((college.length + mobile.length) / 34, 1)
+        : stage === "otp"
+          ? otp.filter(Boolean).length / otp.length
+          : 1;
 
   function goBack() {
     setError("");
@@ -165,13 +178,37 @@ export function CreatorOnboarding() {
   }
 
   return (
-    <section className="onboarding-panel" aria-label="Creator signup">
+    <section
+      className={`onboarding-panel shader-${shaderMode}`}
+      aria-label="Creator signup"
+    >
+      <HolographicShader
+        className="onboarding-shader"
+        variant={shaderMode}
+        signal={shaderSignal}
+      />
       <div className="ambient-orb ambient-orb-one" aria-hidden="true" />
       <div className="ambient-orb ambient-orb-two" aria-hidden="true" />
 
       <div className="mobile-brand">
         <BrandMark />
         <span className="brand-chip">Creator club</span>
+      </div>
+
+      <div className="shader-switcher" aria-label="Choose a shader">
+        <span className="shader-switcher-label">Shader</span>
+        {(["aurora", "midnight", "prism"] as const).map((mode) => (
+          <button
+            key={mode}
+            type="button"
+            className={shaderMode === mode ? "is-active" : undefined}
+            onClick={() => setShaderMode(mode)}
+            aria-pressed={shaderMode === mode}
+          >
+            <span className={`shader-swatch ${mode}`} aria-hidden="true" />
+            {mode}
+          </button>
+        ))}
       </div>
 
       <div className="flow-nav">
@@ -189,15 +226,27 @@ export function CreatorOnboarding() {
         )}
 
         {stage !== "success" && stage !== "existing" ? (
-          <>
-            <span className="progress-label">Step {step} of 3</span>
-            <span className="progress-track" aria-hidden="true">
+          <div className="progress-group">
+            <div className="progress-meta">
+              <span className="progress-label">Step {step} of 3</span>
+              <span className="progress-percent">
+                {Math.round((step / 3) * 100)}%
+              </span>
+            </div>
+            <span
+              className="progress-track"
+              role="progressbar"
+              aria-label={`Signup progress: step ${step} of 3`}
+              aria-valuemin={1}
+              aria-valuemax={3}
+              aria-valuenow={step}
+            >
               <span
                 className="progress-fill"
                 style={{ width: `${(step / 3) * 100}%` }}
               />
             </span>
-          </>
+          </div>
         ) : (
           <span className="progress-label">You’re all set</span>
         )}
