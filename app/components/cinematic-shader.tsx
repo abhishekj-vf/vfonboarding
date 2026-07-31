@@ -10,6 +10,12 @@ const sceneSources = [
 
 const sceneAspects = [3811 / 2818, 3919 / 2622, 3430 / 3530] as const;
 
+export type ShaderSettings = {
+  dotScale: number;
+  dotStrength: number;
+  posterization: number;
+};
+
 const vertexShader = `
   attribute vec2 a_position;
   void main() {
@@ -31,6 +37,9 @@ const fragmentShader = `
   uniform float u_to;
   uniform float u_transition;
   uniform float u_signal;
+  uniform float u_dotScale;
+  uniform float u_dotStrength;
+  uniform float u_posterization;
 
   float random(vec2 point) {
     return fract(sin(dot(point, vec2(12.9898, 78.233))) * 43758.5453);
@@ -99,7 +108,7 @@ const fragmentShader = `
     vec3 art = mix(outgoing, incoming, transition);
 
     float luminance = dot(art, vec3(0.299, 0.587, 0.114));
-    float scale = mix(6.4, 4.2, u_signal);
+    float scale = max(2.8, u_dotScale - u_signal * 1.4);
     mat2 blueAngle = mat2(0.94, -0.34, 0.34, 0.94);
     mat2 redAngle = mat2(0.72, -0.69, 0.69, 0.72);
     mat2 yellowAngle = mat2(0.98, 0.20, -0.20, 0.98);
@@ -110,12 +119,12 @@ const fragmentShader = `
     float redDot = 1.0 - smoothstep(0.15, 0.44, length(cellRed) + luminance * 0.20);
     float yellowDot = 1.0 - smoothstep(0.18, 0.45, length(cellYellow) + luminance * 0.18);
     vec3 printed = art;
-    printed = mix(printed, vec3(0.03, 0.18, 0.62), cyanDot * 0.20);
-    printed = mix(printed, vec3(0.92, 0.13, 0.27), redDot * 0.13);
-    printed = mix(printed, vec3(0.88, 0.91, 0.09), yellowDot * 0.10);
+    printed = mix(printed, vec3(0.03, 0.18, 0.62), cyanDot * 0.20 * u_dotStrength);
+    printed = mix(printed, vec3(0.92, 0.13, 0.27), redDot * 0.13 * u_dotStrength);
+    printed = mix(printed, vec3(0.88, 0.91, 0.09), yellowDot * 0.10 * u_dotStrength);
 
     float ordered = bayer4(gl_FragCoord.xy) - 0.5;
-    printed = floor(clamp(printed + ordered * 0.08, 0.0, 1.0) * 7.0 + 0.5) / 7.0;
+    printed = floor(clamp(printed + ordered * 0.08, 0.0, 1.0) * u_posterization + 0.5) / u_posterization;
     float pointerHalo = exp(-17.0 * distance(uv, u_pointer));
     printed += pointerHalo * vec3(0.055, 0.095, 0.16) * (0.35 + u_signal * 0.65);
     printed += (random(floor(gl_FragCoord.xy * 0.55) + floor(u_time * 2.0)) - 0.5) * 0.025;
@@ -140,12 +149,14 @@ function compileShader(gl: WebGLRenderingContext, type: number, source: string) 
 type CinematicShaderProps = {
   scene: number;
   signal: number;
+  settings: ShaderSettings;
 };
 
-export function CinematicShader({ scene, signal }: CinematicShaderProps) {
+export function CinematicShader({ scene, signal, settings }: CinematicShaderProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sceneRef = useRef(scene);
   const signalRef = useRef(signal);
+  const settingsRef = useRef(settings);
 
   useEffect(() => {
     sceneRef.current = scene;
@@ -154,6 +165,10 @@ export function CinematicShader({ scene, signal }: CinematicShaderProps) {
   useEffect(() => {
     signalRef.current = Math.min(Math.max(signal, 0), 1);
   }, [signal]);
+
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -222,6 +237,9 @@ export function CinematicShader({ scene, signal }: CinematicShaderProps) {
       to: gl.getUniformLocation(program, "u_to"),
       transition: gl.getUniformLocation(program, "u_transition"),
       signal: gl.getUniformLocation(program, "u_signal"),
+      dotScale: gl.getUniformLocation(program, "u_dotScale"),
+      dotStrength: gl.getUniformLocation(program, "u_dotStrength"),
+      posterization: gl.getUniformLocation(program, "u_posterization"),
     };
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let pointer = { x: 0.54, y: 0.48 };
@@ -270,6 +288,9 @@ export function CinematicShader({ scene, signal }: CinematicShaderProps) {
       gl.uniform1f(locations.to, activeScene);
       gl.uniform1f(locations.transition, transition);
       gl.uniform1f(locations.signal, signalRef.current);
+      gl.uniform1f(locations.dotScale, settingsRef.current.dotScale);
+      gl.uniform1f(locations.dotStrength, settingsRef.current.dotStrength);
+      gl.uniform1f(locations.posterization, settingsRef.current.posterization);
       gl.drawArrays(gl.TRIANGLES, 0, 6);
 
       if (!reducedMotion) frame = requestAnimationFrame(render);
