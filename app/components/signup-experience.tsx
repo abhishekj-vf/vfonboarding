@@ -1,32 +1,26 @@
 "use client";
 
-import { useState } from "react";
-import { BrandPanel } from "./brand-panel";
+import { useCallback, useState } from "react";
+import { CinematicShader } from "./cinematic-shader";
 import { CreatorOnboarding } from "./creator-onboarding";
-import {
-  HolographicShader,
-  type ShaderVariant,
-} from "./holographic-shader";
 
 export function SignupExperience() {
-  const [shaderMode, setShaderMode] =
-    useState<ShaderVariant>("newsprint");
-  const [shaderSignal, setShaderSignal] = useState(0);
+  const [scene, setScene] = useState(0);
+  const [signal, setSignal] = useState(0);
+
+  const updateVisualState = useCallback(
+    (nextScene: number, nextSignal: number) => {
+      setScene(nextScene);
+      setSignal(nextSignal);
+    },
+    [],
+  );
 
   return (
-    <main className={`site-shell shader-${shaderMode}`}>
-      <HolographicShader
-        className="global-shader"
-        variant={shaderMode}
-        signal={shaderSignal}
-      />
-      <div className="global-paper-grain" aria-hidden="true" />
-      <BrandPanel />
-      <CreatorOnboarding
-        shaderMode={shaderMode}
-        onShaderModeChange={setShaderMode}
-        onShaderSignalChange={setShaderSignal}
-      />
+    <main className="site-shell">
+      <CinematicShader scene={scene} signal={signal} />
+      <div className="signal-grain" aria-hidden="true" />
+      <CreatorOnboarding onVisualChange={updateVisualState} />
     </main>
   );
 }

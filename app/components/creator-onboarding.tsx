@@ -6,29 +6,24 @@ import {
   ArrowUpRight,
   Check,
   CheckCircle,
-  Eye,
   GraduationCap,
   InstagramLogo,
   LockSimple,
   Phone,
   ShieldCheck,
   Sparkle,
-  UsersThree,
-  WarningCircle,
+  Warning,
 } from "@phosphor-icons/react";
-import {
-  FormEvent,
-  KeyboardEvent,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { FormEvent, KeyboardEvent, useEffect, useRef, useState } from "react";
 import { checkInstagramEligibility, ProfileCheck } from "../lib/eligibility";
 import { BrandMark } from "./brand-mark";
-import { type ShaderVariant } from "./holographic-shader";
 import { StoreBadges } from "./store-badges";
 
 type Stage = "profile" | "details" | "otp" | "success" | "existing";
+
+type CreatorOnboardingProps = {
+  onVisualChange: (scene: number, signal: number) => void;
+};
 
 const colleges = [
   "University of Delhi",
@@ -59,17 +54,43 @@ const stageStep: Record<Stage, number> = {
   existing: 1,
 };
 
-type CreatorOnboardingProps = {
-  shaderMode: ShaderVariant;
-  onShaderModeChange: (mode: ShaderVariant) => void;
-  onShaderSignalChange: (signal: number) => void;
+const stageScene: Record<Stage, number> = {
+  profile: 0,
+  details: 1,
+  otp: 2,
+  success: 1,
+  existing: 2,
 };
 
-export function CreatorOnboarding({
-  shaderMode,
-  onShaderModeChange,
-  onShaderSignalChange,
-}: CreatorOnboardingProps) {
+const stageCopy: Record<Stage, { label: string; title: string; copy: string }> = {
+  profile: {
+    label: "Creator roll call / 01",
+    title: "Your point of view has a pulse.",
+    copy: "We appreciate the cut, the caption, the take, the timing. Let us see what you make the room feel.",
+  },
+  details: {
+    label: "The coordinates / 02",
+    title: "Tell us where the culture happens.",
+    copy: "Your campus is more than an address. It is where your next audience already lives.",
+  },
+  otp: {
+    label: "One signal / 03",
+    title: "The stage knows your name.",
+    copy: "Enter the code we sent. It is a small pause before the good part.",
+  },
+  success: {
+    label: "Creator club / unlocked",
+    title: "Craft clocked. Thank you.",
+    copy: "Your perspective belongs in the conversation. Your place is waiting inside ViralFission.",
+  },
+  existing: {
+    label: "Already on the list",
+    title: "Your voice is already in the room.",
+    copy: "We found your profile. Open the app and pick the story back up.",
+  },
+};
+
+export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
   const [stage, setStage] = useState<Stage>("profile");
   const [handle, setHandle] = useState("");
   const [profile, setProfile] = useState<ProfileCheck | null>(null);
@@ -81,7 +102,7 @@ export function CreatorOnboarding({
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
 
   const step = stageStep[stage];
-  const shaderSignal =
+  const signal =
     stage === "profile"
       ? Math.min(handle.length / 18, 1)
       : stage === "details"
@@ -91,23 +112,18 @@ export function CreatorOnboarding({
           : 1;
 
   useEffect(() => {
-    onShaderSignalChange(shaderSignal);
-  }, [onShaderSignalChange, shaderSignal]);
+    onVisualChange(stageScene[stage], signal);
+  }, [onVisualChange, signal, stage]);
 
   function goBack() {
     setError("");
-    if (stage === "details") {
-      setStage("profile");
-    } else if (stage === "otp") {
-      setStage("details");
-    }
+    setStage(stage === "otp" ? "details" : "profile");
   }
 
   async function checkProfile(event: FormEvent) {
     event.preventDefault();
     setError("");
     setProfile(null);
-
     const cleanHandle = handle
       .trim()
       .replace(/^https?:\/\/(www\.)?instagram\.com\//i, "")
@@ -115,7 +131,7 @@ export function CreatorOnboarding({
       .replace(/\/.*$/, "");
 
     if (!/^[a-zA-Z0-9._]{2,30}$/.test(cleanHandle)) {
-      setError("Enter a valid Instagram username or profile link.");
+      setError("Drop a valid Instagram username or profile link.");
       return;
     }
 
@@ -123,35 +139,29 @@ export function CreatorOnboarding({
     const result = await checkInstagramEligibility(cleanHandle);
     setChecking(false);
     setProfile(result);
-
-    if (result.hasExistingAccount) {
-      setStage("existing");
-    }
+    if (result.hasExistingAccount) setStage("existing");
   }
 
   function continueToDetails() {
     if (profile?.eligible) {
-      setStage("details");
       setError("");
+      setStage("details");
     }
   }
 
   function submitDetails(event: FormEvent) {
     event.preventDefault();
-    setError("");
-
+    const cleanMobile = mobile.replace(/\D/g, "");
     if (college.trim().length < 2) {
-      setError("Choose your college to continue.");
+      setError("Tell us your college first.");
       return;
     }
-
-    const cleanMobile = mobile.replace(/\D/g, "");
     if (!/^[6-9]\d{9}$/.test(cleanMobile)) {
       setError("Enter a valid 10-digit Indian mobile number.");
       return;
     }
-
     setMobile(cleanMobile);
+    setError("");
     setStage("otp");
   }
 
@@ -161,16 +171,10 @@ export function CreatorOnboarding({
     next[index] = digit;
     setOtp(next);
     setError("");
-
-    if (digit && index < otp.length - 1) {
-      otpRefs.current[index + 1]?.focus();
-    }
+    if (digit && index < otp.length - 1) otpRefs.current[index + 1]?.focus();
   }
 
-  function handleOtpKeyDown(
-    index: number,
-    event: KeyboardEvent<HTMLInputElement>,
-  ) {
+  function handleOtpKeyDown(index: number, event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Backspace" && !otp[index] && index > 0) {
       otpRefs.current[index - 1]?.focus();
     }
@@ -179,7 +183,7 @@ export function CreatorOnboarding({
   function verifyOtp(event: FormEvent) {
     event.preventDefault();
     if (otp.some((digit) => !digit)) {
-      setError("Enter the complete 6-digit code.");
+      setError("Enter all 6 digits to continue.");
       return;
     }
     setError("");
@@ -187,424 +191,132 @@ export function CreatorOnboarding({
   }
 
   function resetProfile() {
-    setHandle("");
-    setProfile(null);
-    setError("");
     setStage("profile");
+    setProfile(null);
+    setHandle("");
+    setError("");
   }
 
+  const copy = stageCopy[stage];
+
   return (
-    <section
-      className={`onboarding-panel shader-${shaderMode}`}
-      aria-label="Creator signup"
-    >
-      <div className="mobile-brand">
+    <section className="onboarding-panel" aria-label="Creator signup">
+      <header className="experience-header">
         <BrandMark />
-        <span className="brand-chip">Creator club</span>
+        <p className="edition-mark">Creator club / India</p>
+        <p className="signal-mark" aria-label={`Step ${step} of 3`}>
+          0{step} / 03
+        </p>
+      </header>
+
+      <div className="stage-meter" aria-hidden="true">
+        <span style={{ width: `${(step / 3) * 100}%` }} />
       </div>
 
-      <div className="shader-switcher" aria-label="Choose a shader">
-        <span className="shader-switcher-label">Print mode</span>
-        {(["newsprint", "nocturne", "tritone"] as const).map((mode) => (
-          <button
-            key={mode}
-            type="button"
-            className={shaderMode === mode ? "is-active" : undefined}
-            onClick={() => onShaderModeChange(mode)}
-            aria-pressed={shaderMode === mode}
-          >
-            <span className={`shader-swatch ${mode}`} aria-hidden="true" />
-            {mode}
-          </button>
-        ))}
+      <div className="hero-statement" aria-live="polite">
+        <p>{copy.label}</p>
+        <h1>{copy.title}</h1>
       </div>
 
-      <div className="flow-nav">
-        {stage === "details" || stage === "otp" ? (
-          <button
-            className="back-button"
-            type="button"
-            onClick={goBack}
-            aria-label="Go back"
-          >
-            <ArrowLeft size={18} weight="bold" aria-hidden="true" />
-          </button>
-        ) : (
-          <span className="back-placeholder" />
-        )}
+      <div className="signup-stage">
+        <div className="stage-aside">
+          <span>VF / CREATOR EDITION</span>
+          <span>NO PASSWORDS. NO POSTING PERMISSION.</span>
+        </div>
 
-        {stage !== "success" && stage !== "existing" ? (
-          <div className="progress-group">
-            <div className="progress-meta">
-              <span className="progress-label">Step {step} of 3</span>
-              <span className="progress-percent">
-                {Math.round((step / 3) * 100)}%
-              </span>
-            </div>
-            <span
-              className="progress-track"
-              role="progressbar"
-              aria-label={`Signup progress: step ${step} of 3`}
-              aria-valuemin={1}
-              aria-valuemax={3}
-              aria-valuenow={step}
-            >
-              <span
-                className="progress-fill"
-                style={{ width: `${(step / 3) * 100}%` }}
-              />
-            </span>
-          </div>
-        ) : (
-          <span className="progress-label">You’re all set</span>
-        )}
-      </div>
+        <div className="stage-content">
+          <p className="stage-copy">{copy.copy}</p>
 
-      <div className="form-wrap">
-        {stage === "profile" && (
-          <div>
-            <p className="form-kicker">Start with your profile</p>
-            <h2 className="form-title">Let’s see if you’re creator-ready.</h2>
-            <p className="form-copy">
-              Share your Instagram profile for a quick eligibility check. No
-              password or posting permission required.
-            </p>
-
-            <div className="requirement-row" aria-label="Eligibility criteria">
-              <span className="requirement">
-                <Eye size={14} weight="bold" aria-hidden="true" />
-                Public profile
-              </span>
-              <span className="requirement">
-                <UsersThree size={14} weight="bold" aria-hidden="true" />
-                5K+ followers
-              </span>
-            </div>
-
-            <form onSubmit={checkProfile} noValidate>
-              <div className="field">
-                <label htmlFor="instagram">Instagram profile</label>
-                <div className="input-shell">
-                  <span className="input-icon" aria-hidden="true">
-                    <InstagramLogo size={20} weight="bold" />
-                  </span>
-                  <input
-                    id="instagram"
-                    value={handle}
-                    onChange={(event) => {
-                      setHandle(event.target.value);
-                      setProfile(null);
-                      setError("");
-                    }}
-                    placeholder="yourhandle"
-                    autoComplete="off"
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    aria-describedby={error ? "profile-error" : undefined}
-                    aria-invalid={Boolean(error)}
-                  />
-                </div>
+          {stage === "profile" && (
+            <form onSubmit={checkProfile} className="stage-form" noValidate>
+              <label className="field-label" htmlFor="instagram">Your Instagram</label>
+              <div className="line-input">
+                <InstagramLogo size={23} weight="bold" aria-hidden="true" />
+                <input
+                  id="instagram"
+                  value={handle}
+                  onChange={(event) => {
+                    setHandle(event.target.value);
+                    setProfile(null);
+                    setError("");
+                  }}
+                  placeholder="@yourhandle"
+                  autoComplete="off"
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  aria-invalid={Boolean(error)}
+                />
+                <button className="arrow-submit" type="submit" disabled={checking} aria-label="Check eligibility">
+                  {checking ? "..." : <ArrowRight size={24} weight="bold" aria-hidden="true" />}
+                </button>
               </div>
-
-              {error && (
-                <p className="field-error" id="profile-error" role="alert">
-                  {error}
-                </p>
-              )}
+              {error && <p className="field-error" role="alert">{error}</p>}
 
               {profile?.eligible && (
-                <div className="profile-result" aria-live="polite">
-                  <span className="profile-platform-icon" aria-hidden="true">
-                    <InstagramLogo size={22} weight="duotone" />
-                  </span>
-                  <span className="profile-result-copy">
-                    <span className="profile-result-heading">
-                      <strong>@{profile.handle}</strong>
-                      <span className="eligible-pill">
-                        <CheckCircle size={15} weight="fill" aria-hidden="true" />
-                        Eligible
-                      </span>
-                    </span>
-                    <span className="profile-metrics">
-                      <span>
-                        {profile.followers.toLocaleString("en-IN")} followers
-                      </span>
-                      <span className="metric-divider" aria-hidden="true" />
-                      <span>Public profile</span>
-                    </span>
-                  </span>
+                <div className="profile-response" aria-live="polite">
+                  <span className="profile-response-icon"><CheckCircle size={19} weight="fill" /></span>
+                  <span><strong>@{profile.handle}</strong> <em>{profile.followers.toLocaleString("en-IN")} followers · public</em></span>
+                  <button type="button" onClick={continueToDetails}>Continue <ArrowRight size={16} weight="bold" /></button>
                 </div>
               )}
 
               {profile && !profile.eligible && !profile.hasExistingAccount && (
-                <div className="blocked-card" aria-live="polite">
-                  <span className="blocked-icon" aria-hidden="true">
-                    <WarningCircle size={22} weight="fill" />
-                  </span>
-                  <h3>
-                    {profile.reason === "private"
-                      ? "Your profile is private"
-                      : "Keep growing. We see you."}
-                  </h3>
-                  <p>
-                    {profile.reason === "private"
-                      ? "Switch your Instagram to public, then come back and check again."
-                      : "Creator access currently starts at 5,000 followers. You’re not far off."}
-                  </p>
-                  <button
-                    className="text-button"
-                    type="button"
-                    onClick={resetProfile}
-                  >
-                    Try another profile
-                    <ArrowRight size={15} weight="bold" aria-hidden="true" />
-                  </button>
+                <div className="profile-response is-blocked" aria-live="polite">
+                  <span className="profile-response-icon"><Warning size={19} weight="fill" /></span>
+                  <span><strong>{profile.reason === "private" ? "Your profile is private." : "Nearly there."}</strong> <em>{profile.reason === "private" ? "Switch it public so we can see your work." : "Creator Club begins at 5K followers."}</em></span>
                 </div>
               )}
-
-              {!profile?.eligible &&
-                !(profile && !profile.eligible && !profile.hasExistingAccount) && (
-                  <button
-                    className="primary-button"
-                    type="submit"
-                    disabled={checking}
-                  >
-                    {checking ? (
-                      <>
-                        <span className="spinner" aria-hidden="true" />
-                        Checking your profile
-                      </>
-                    ) : (
-                      <>
-                        Check my eligibility
-                        <ArrowRight
-                          className="button-arrow"
-                          size={18}
-                          weight="bold"
-                          aria-hidden="true"
-                        />
-                      </>
-                    )}
-                  </button>
-                )}
-
-              {profile?.eligible && (
-                <button
-                  className="primary-button"
-                  type="button"
-                  onClick={continueToDetails}
-                >
-                  Continue
-                  <ArrowRight
-                    className="button-arrow"
-                    size={18}
-                    weight="bold"
-                    aria-hidden="true"
-                  />
-                </button>
-              )}
-
-              {!profile && (
-                <p className="microcopy">
-                  <LockSimple size={14} weight="bold" aria-hidden="true" />
-                  Your profile info is used only for eligibility
-                </p>
-              )}
+              <p className="quiet-note"><ShieldCheck size={14} weight="bold" /> We only use this to check eligibility.</p>
             </form>
-          </div>
-        )}
+          )}
 
-        {stage === "details" && (
-          <div>
-            <p className="form-kicker">Tell us the basics</p>
-            <h2 className="form-title">Where do you create from?</h2>
-            <p className="form-copy">
-              Your campus helps us match you with the right drops, events, and
-              brand opportunities.
-            </p>
-
-            <form onSubmit={submitDetails} noValidate>
-              <div className="field">
-                <label htmlFor="college">College or university</label>
-                <div className="input-shell college-input">
-                  <span className="input-icon" aria-hidden="true">
-                    <GraduationCap size={20} weight="bold" />
-                  </span>
-                  <input
-                    id="college"
-                    list="college-list"
-                    value={college}
-                    onChange={(event) => {
-                      setCollege(event.target.value);
-                      setError("");
-                    }}
-                    placeholder="Start typing your college"
-                    autoComplete="organization"
-                  />
-                  <datalist id="college-list">
-                    {colleges.map((name) => (
-                      <option key={name} value={name} />
-                    ))}
-                  </datalist>
-                </div>
+          {stage === "details" && (
+            <form onSubmit={submitDetails} className="stage-form" noValidate>
+              <div className="dual-fields">
+                <label className="stacked-field" htmlFor="college"><span>College or university</span><span className="line-input"><GraduationCap size={21} weight="bold" /><input id="college" list="college-list" value={college} onChange={(event) => { setCollege(event.target.value); setError(""); }} placeholder="Start typing" autoComplete="organization" /></span></label>
+                <datalist id="college-list">{colleges.map((name) => <option key={name} value={name} />)}</datalist>
+                <label className="stacked-field" htmlFor="mobile"><span>Mobile number</span><span className="line-input"><Phone size={20} weight="bold" /><b>+91</b><input id="mobile" value={mobile} onChange={(event) => { setMobile(event.target.value.replace(/\D/g, "").slice(0, 10)); setError(""); }} placeholder="98765 43210" inputMode="numeric" autoComplete="tel-national" /></span></label>
               </div>
-
-              <div className="field">
-                <label htmlFor="mobile">Mobile number</label>
-                <div className="input-shell">
-                  <span className="input-icon" aria-hidden="true">
-                    <Phone size={19} weight="bold" />
-                  </span>
-                  <span className="country-prefix" aria-hidden="true">
-                    +91
-                  </span>
-                  <input
-                    id="mobile"
-                    value={mobile}
-                    onChange={(event) => {
-                      setMobile(
-                        event.target.value.replace(/\D/g, "").slice(0, 10),
-                      );
-                      setError("");
-                    }}
-                    placeholder="98765 43210"
-                    autoComplete="tel-national"
-                    inputMode="numeric"
-                    aria-describedby={error ? "details-error" : undefined}
-                    aria-invalid={Boolean(error)}
-                  />
-                </div>
-              </div>
-
-              {error && (
-                <p className="field-error" id="details-error" role="alert">
-                  {error}
-                </p>
-              )}
-
-              <button className="primary-button" type="submit">
-                Send code
-                <ArrowRight
-                  className="button-arrow"
-                  size={18}
-                  weight="bold"
-                  aria-hidden="true"
-                />
-              </button>
-              <p className="microcopy">
-                <ShieldCheck size={14} weight="bold" aria-hidden="true" />
-                We’ll never add you to a noisy WhatsApp group
-              </p>
+              {error && <p className="field-error" role="alert">{error}</p>}
+              <button className="command-button" type="submit">Send the signal <ArrowRight size={20} weight="bold" /></button>
             </form>
-          </div>
-        )}
+          )}
 
-        {stage === "otp" && (
-          <div>
-            <p className="form-kicker">One last thing</p>
-            <h2 className="form-title">Prove it’s really you.</h2>
-            <p className="form-copy">
-              Enter the 6-digit code sent to +91 •••••{" "}
-              {mobile.slice(-5) || "00000"}. It should land in a few seconds.
-            </p>
-
-            <form onSubmit={verifyOtp} noValidate>
-              <span className="field-label" id="otp-label">
-                Verification code
-              </span>
-              <div className="otp-row" aria-labelledby="otp-label">
+          {stage === "otp" && (
+            <form onSubmit={verifyOtp} className="stage-form" noValidate>
+              <span className="field-label">Six-digit verification code</span>
+              <div className="otp-row">
                 {otp.map((digit, index) => (
-                  <input
-                    key={index}
-                    ref={(element) => {
-                      otpRefs.current[index] = element;
-                    }}
-                    className="otp-input"
-                    value={digit}
-                    onChange={(event) => updateOtp(index, event.target.value)}
-                    onKeyDown={(event) => handleOtpKeyDown(index, event)}
-                    onFocus={(event) => event.target.select()}
-                    inputMode="numeric"
-                    autoComplete={index === 0 ? "one-time-code" : "off"}
-                    aria-label={`Digit ${index + 1}`}
-                    maxLength={1}
-                  />
+                  <input key={index} ref={(element) => { otpRefs.current[index] = element; }} className="otp-input" value={digit} onChange={(event) => updateOtp(index, event.target.value)} onKeyDown={(event) => handleOtpKeyDown(index, event)} onFocus={(event) => event.target.select()} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} aria-label={`Digit ${index + 1}`} maxLength={1} />
                 ))}
               </div>
-
-              {error && (
-                <p className="field-error" role="alert">
-                  {error}
-                </p>
-              )}
-
-              <p className="resend-line">
-                Didn’t get it?{" "}
-                <button
-                  type="button"
-                  onClick={() => setOtp(["", "", "", "", "", ""])}
-                >
-                  Send again
-                </button>
-              </p>
-
-              <button className="primary-button" type="submit">
-                Verify and join
-                <ArrowRight
-                  className="button-arrow"
-                  size={18}
-                  weight="bold"
-                  aria-hidden="true"
-                />
-              </button>
-              <p className="microcopy">
-                <LockSimple size={14} weight="bold" aria-hidden="true" />
-                For this preview, any 6 digits will work
-              </p>
+              {error && <p className="field-error" role="alert">{error}</p>}
+              <button className="command-button" type="submit">Verify and enter <ArrowRight size={20} weight="bold" /></button>
+              <p className="quiet-note"><LockSimple size={14} weight="bold" /> For this preview, any six digits work.</p>
             </form>
-          </div>
-        )}
+          )}
 
-        {stage === "success" && (
-          <div className="success-wrap" aria-live="polite">
-            <div className="success-burst" aria-hidden="true">
-              <Check size={34} weight="bold" />
+          {stage === "success" && (
+            <div className="final-stage" aria-live="polite">
+              <span className="final-mark"><Check size={30} weight="bold" /></span>
+              <StoreBadges />
+              <p>See you inside, @{profile?.handle || "creator"}. <Sparkle size={14} weight="fill" /></p>
             </div>
-            <p className="form-kicker">Welcome to the inner circle</p>
-            <h2 className="form-title">You’re officially creator-ready.</h2>
-            <p className="form-copy">
-              Your profile is eligible and your spot is saved. Download the app
-              to finish your creator profile and find your first collab.
-            </p>
-            <p className="download-label">Get the app</p>
-            <StoreBadges />
-            <p className="community-note">
-              See you on the inside, @{profile?.handle || "creator"}
-              <Sparkle size={13} weight="fill" aria-hidden="true" />
-            </p>
-          </div>
-        )}
+          )}
 
-        {stage === "existing" && (
-          <div className="success-wrap" aria-live="polite">
-            <div className="success-burst" aria-hidden="true">
-              <ArrowUpRight size={32} weight="bold" />
+          {stage === "existing" && (
+            <div className="final-stage" aria-live="polite">
+              <span className="final-mark"><ArrowUpRight size={30} weight="bold" /></span>
+              <StoreBadges />
+              <button className="reset-button" type="button" onClick={resetProfile}>Try another profile <ArrowRight size={16} weight="bold" /></button>
             </div>
-            <p className="form-kicker">We know that profile</p>
-            <h2 className="form-title">You’re already one of us.</h2>
-            <p className="form-copy">
-              An account already exists for @{profile?.handle}. Open the app and
-              pick up where you left off.
-            </p>
-            <p className="download-label">Open or download the app</p>
-            <StoreBadges />
-            <button className="text-button" type="button" onClick={resetProfile}>
-              Check a different profile
-              <ArrowRight size={15} weight="bold" aria-hidden="true" />
-            </button>
-          </div>
-        )}
+          )}
+        </div>
       </div>
+
+      {(stage === "details" || stage === "otp") && (
+        <button className="back-control" type="button" onClick={goBack}><ArrowLeft size={18} weight="bold" /> Back</button>
+      )}
     </section>
   );
 }

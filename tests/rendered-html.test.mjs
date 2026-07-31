@@ -33,19 +33,18 @@ test("server-renders the ViralFission creator signup", async () => {
   const html = await response.text();
   assert.match(
     html,
-    /<title>Join ViralFission \| Turn your influence into impact<\/title>/i,
+    /<title>ViralFission \| Your point of view has a pulse<\/title>/i,
   );
   assert.match(html, /ViralFission/);
-  assert.match(html, /creator-ready/);
-  assert.match(html, /Public profile/);
-  assert.match(html, /5K\+ followers/);
-  assert.match(html, /holographic-canvas/);
+  assert.match(html, /Your point of view has a pulse/);
+  assert.match(html, /Your Instagram/);
+  assert.match(html, /cinematic-canvas/);
   assert.equal(
-    (html.match(/holographic-canvas/g) ?? []).length,
+    (html.match(/cinematic-canvas/g) ?? []).length,
     1,
     "the page should render one shared shader canvas",
   );
-  assert.match(html, /og-holographic\.png/);
+  assert.match(html, /og-creator-signal\.png/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
 
@@ -60,7 +59,9 @@ test("keeps the interactive experience modular and production-ready", async () =
     packageJson,
     appleBadge,
     googleBadge,
-    artwork,
+    degasArtwork,
+    organArtwork,
+    opinionArtwork,
   ] = await Promise.all([
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(
@@ -72,7 +73,7 @@ test("keeps the interactive experience modular and production-ready", async () =
       "utf8",
     ),
     readFile(
-      new URL("../app/components/holographic-shader.tsx", import.meta.url),
+      new URL("../app/components/cinematic-shader.tsx", import.meta.url),
       "utf8",
     ),
     readFile(
@@ -83,36 +84,39 @@ test("keeps the interactive experience modular and production-ready", async () =
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     stat(new URL("../public/download-on-app-store.svg", import.meta.url)),
     stat(new URL("../public/get-it-on-google-play.png", import.meta.url)),
-    stat(new URL("../public/van-gogh-irises.jpg", import.meta.url)),
+    stat(new URL("../public/degas-rehearsal.jpg", import.meta.url)),
+    stat(new URL("../public/lerolle-organ-rehearsal.jpg", import.meta.url)),
+    stat(new URL("../public/daumier-opinion.jpg", import.meta.url)),
   ]);
 
   assert.match(page, /<SignupExperience \/>/);
   assert.doesNotMatch(page, /"use client"/);
 
-  assert.match(experience, /<HolographicShader/);
-  assert.match(experience, /<BrandPanel \/>/);
+  assert.match(experience, /<CinematicShader/);
   assert.match(experience, /<CreatorOnboarding/);
 
   assert.match(onboarding, /"use client"/);
   assert.match(onboarding, /@phosphor-icons\/react/);
   assert.match(onboarding, /type Stage = "profile" \| "details" \| "otp"/);
-  assert.doesNotMatch(onboarding, /<HolographicShader/);
-  assert.match(onboarding, /\["newsprint", "nocturne", "tritone"\]/);
+  assert.match(onboarding, /Craft clocked\. Thank you/);
+  assert.match(onboarding, /onVisualChange/);
 
-  assert.match(shader, /fragmentShaderSource/);
+  assert.match(shader, /const fragmentShader/);
   assert.match(shader, /getContext\("webgl"/);
   assert.match(shader, /prefers-reduced-motion/);
-  assert.match(shader, /u_artwork/);
+  assert.match(shader, /u_scene0/);
   assert.match(shader, /bayer4/);
-  assert.match(shader, /halftoneMask/);
+  assert.match(shader, /u_transition/);
 
   assert.match(storeBadges, /download-on-app-store\.svg/);
   assert.match(storeBadges, /get-it-on-google-play\.png/);
   assert.ok(appleBadge.size > 1_000);
   assert.ok(googleBadge.size > 1_000);
-  assert.ok(artwork.size > 1_000_000);
+  assert.ok(degasArtwork.size > 1_000_000);
+  assert.ok(organArtwork.size > 1_000_000);
+  assert.ok(opinionArtwork.size > 1_000_000);
 
-  assert.match(layout, /og-holographic\.png/);
+  assert.match(layout, /og-creator-signal\.png/);
   assert.match(packageJson, /"@phosphor-icons\/react"/);
 
   await assert.rejects(access(new URL("../app/_sites-preview", templateRoot)));

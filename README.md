@@ -1,54 +1,45 @@
-# ViralFission creator signup
+# ViralFission Creator Club
 
-Mobile-first creator onboarding for ViralFission. The signup flow checks an
-Instagram handle, collects college and Indian mobile details, verifies a demo
-OTP, and hands eligible creators off to the native apps.
+An immersive signup experience for the creators shaping campus culture. This is
+not a dashboard or a form card: it is a cinematic invitation that thanks people
+for their taste, effort, and point of view.
 
-## Run locally
-
-Requires Node.js `>=22.13.0`.
+## Run it locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-The dev command binds to `0.0.0.0`. It prints both:
+The development server prints a `Network` URL for phones on the same Wi-Fi. It
+does not require ChatGPT sign-in.
 
-- `Local`: open this URL on the development computer.
-- `Network`: open this URL on a phone connected to the same Wi-Fi.
+## The visual system
 
-If Windows asks whether Node.js may accept connections on the local network,
-allow private-network access. This project does not require ChatGPT sign-in.
+One full-screen WebGL canvas powers the experience. The canvas transitions
+between scenes using a Bayer-dither fracture, pointer displacement, scanlines,
+and print-noise as creators move through the flow.
 
-## Useful commands
+The bundled public-domain Met Open Access artwork is intentionally about the
+work of being seen and heard:
+
+- Edgar Degas, [*The Rehearsal Onstage*](https://www.metmuseum.org/art/collection/search/436156), ca. 1874.
+- Henry Lerolle, [*The Organ Rehearsal*](https://www.metmuseum.org/art/collection/search/436880), 1885.
+- Honoré Daumier, [*News of the Day*](https://www.metmuseum.org/art/collection/search/755534), 1867.
+
+The social preview image was made specifically for this site and lives at
+`public/og-creator-signal.png`.
+
+## Structure
+
+- `app/components/cinematic-shader.tsx`: artwork textures and shader transitions.
+- `app/components/creator-onboarding.tsx`: eligibility, college, mobile, OTP, and app handoff states.
+- `app/components/signup-experience.tsx`: joins signup state to the visual scene.
+
+## Checks
 
 ```bash
 npm run build
 npm test
 npm run lint
 ```
-
-## Visual system
-
-The page uses one WebGL canvas behind both desktop columns. The three selectable
-print modes all process the same locally bundled artwork:
-
-- `Newsprint`: rotated halftone screens with indigo ink.
-- `Nocturne`: a 4×4 Bayer ordered-dither treatment.
-- `Tritone`: an ink, vermilion, cream, and wave-blue poster treatment.
-
-Pointer movement shifts the print registration subtly. Form completion changes
-the dot scale, drift, and interaction intensity.
-
-The source artwork is Vincent van Gogh’s *Irises*, 1890. The local image comes
-from [The Metropolitan Museum of Art Open Access collection](https://www.metmuseum.org/art/collection/search/436528)
-and is marked public domain.
-
-## Project structure
-
-- `app/components/signup-experience.tsx`: shared shader state and page shell.
-- `app/components/holographic-shader.tsx`: WebGL artwork and print shaders.
-- `app/components/creator-onboarding.tsx`: multi-step signup flow.
-- `app/components/brand-panel.tsx`: desktop creator-community panel.
-- `app/lib/eligibility.ts`: preview eligibility logic.

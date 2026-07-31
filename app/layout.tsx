@@ -26,9 +26,9 @@ export async function generateMetadata(): Promise<Metadata> {
     requestHeaders.get("x-forwarded-proto") ??
     (host.includes("localhost") ? "http" : "https");
   const siteUrl = `${protocol}://${host}`;
-  const title = "Join ViralFission | Turn your influence into impact";
+  const title = "ViralFission | Your point of view has a pulse";
   const description =
-    "Check your Instagram eligibility and join India’s campus creator community.";
+    "A creator invitation for the people shaping what everyone talks about next.";
 
   return {
     title,
@@ -39,10 +39,10 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       images: [
         {
-          url: `${siteUrl}/og-holographic.png`,
-          width: 1731,
-          height: 909,
-          alt: "Your reach deserves a stage — ViralFission",
+          url: `${siteUrl}/og-creator-signal.png`,
+          width: 1664,
+          height: 928,
+          alt: "Your point of view has a pulse — ViralFission",
         },
       ],
     },
@@ -50,7 +50,7 @@ export async function generateMetadata(): Promise<Metadata> {
       card: "summary_large_image",
       title,
       description,
-      images: [`${siteUrl}/og-holographic.png`],
+      images: [`${siteUrl}/og-creator-signal.png`],
     },
   };
 }
