@@ -5,7 +5,6 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
-  CheckCircle,
   GraduationCap,
   InstagramLogo,
   LockSimple,
@@ -139,12 +138,9 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
     const result = await checkInstagramEligibility(cleanHandle);
     setChecking(false);
     setProfile(result);
-    if (result.hasExistingAccount) setStage("existing");
-  }
-
-  function continueToDetails() {
-    if (profile?.eligible) {
-      setError("");
+    if (result.hasExistingAccount) {
+      setStage("existing");
+    } else if (result.eligible) {
       setStage("details");
     }
   }
@@ -225,6 +221,9 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
         </div>
 
         <div className="stage-content">
+          {(stage === "details" || stage === "otp") && (
+            <button className="back-control" type="button" onClick={goBack}><ArrowLeft size={18} weight="bold" /> Back</button>
+          )}
           <p className="stage-copy">{copy.copy}</p>
 
           {stage === "profile" && (
@@ -251,14 +250,6 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
                 </button>
               </div>
               {error && <p className="field-error" role="alert">{error}</p>}
-
-              {profile?.eligible && (
-                <div className="profile-response" aria-live="polite">
-                  <span className="profile-response-icon"><CheckCircle size={19} weight="fill" /></span>
-                  <span><strong>@{profile.handle}</strong> <em>{profile.followers.toLocaleString("en-IN")} followers · public</em></span>
-                  <button type="button" onClick={continueToDetails}>Continue <ArrowRight size={16} weight="bold" /></button>
-                </div>
-              )}
 
               {profile && !profile.eligible && !profile.hasExistingAccount && (
                 <div className="profile-response is-blocked" aria-live="polite">
@@ -314,9 +305,6 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
         </div>
       </div>
 
-      {(stage === "details" || stage === "otp") && (
-        <button className="back-control" type="button" onClick={goBack}><ArrowLeft size={18} weight="bold" /> Back</button>
-      )}
     </section>
   );
 }
