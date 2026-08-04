@@ -221,13 +221,14 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
       </div>
 
       <div className="signup-stage">
-        {(stage === "details" || stage === "otp") && (
-          <button className="back-control" type="button" onClick={goBack}><ArrowLeft size={18} weight="bold" /> Back</button>
-        )}
-
-        <div className="stage-aside">
-          <span>VF / CREATOR EDITION</span>
-          <span>NO PASSWORDS. NO POSTING PERMISSION.</span>
+        <div className="stage-context">
+          {(stage === "details" || stage === "otp") && (
+            <button className="back-control" type="button" onClick={goBack}><ArrowLeft size={18} weight="bold" /> Back</button>
+          )}
+          <div className="stage-aside">
+            <span>VF / CREATOR EDITION</span>
+            <span>NO PASSWORDS. NO POSTING PERMISSION.</span>
+          </div>
         </div>
 
         <div className="stage-content">
@@ -298,9 +299,11 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
 
           {stage === "success" && (
             <div className="final-stage" aria-live="polite">
-              <span className="final-mark"><Check size={30} weight="bold" /></span>
+              <div className="final-status">
+                <span className="final-mark"><Check size={24} weight="bold" /></span>
+                <p>See you inside, @{profile?.handle || "creator"}. <Sparkle size={14} weight="fill" /></p>
+              </div>
               <StoreBadges />
-              <p>See you inside, @{profile?.handle || "creator"}. <Sparkle size={14} weight="fill" /></p>
             </div>
           )}
 
