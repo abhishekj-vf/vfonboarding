@@ -387,13 +387,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .store-links { display: flex; flex-wrap: wrap; gap: 10px; }
 .store-badge {
   height: 46px;
+  width: 138px;
   display: flex;
   align-items: stretch;
+  justify-content: center;
+  overflow: hidden;
   line-height: 0;
   transition: transform 180ms ease;
 }
 .store-badge:hover { transform: translateY(-2px); }
-.app-store-badge, .google-play-badge { height: 100%; width: auto; display: block; }
+.app-store-badge, .google-play-badge { height: 100%; width: 100%; display: block; object-fit: fill; }
 
 .back-control {
   display: inline-flex;
@@ -417,38 +420,57 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 
 @media (max-width: 780px) {
-  .onboarding-panel { padding: 20px 18px 22px; }
+  .onboarding-panel { height: 100svh; overflow: hidden; padding: 18px 18px 18px; }
   .experience-header { grid-template-columns: 1fr auto; gap: 10px; }
   .edition-mark { display: none; }
   .signal-mark { font-size: .59rem; }
   .brand-monogram { width: 34px; height: 34px; }
   .brand-mark { font-size: .9rem; }
-  .stage-meter { width: 100%; margin-top: 18px; }
-  .hero-statement { max-width: 100%; margin-top: clamp(46px, 9vh, 82px); }
-  .hero-statement p { margin-bottom: 11px; font-size: .56rem; }
-  .hero-statement h1 { max-width: 360px; font-size: clamp(3.7rem, 15.1vw, 5.4rem); line-height: 1.3; }
-  .signup-stage { display: grid; gap: 17px; padding-top: 26px; }
+  .stage-meter { width: 100%; margin-top: 16px; }
+  .hero-statement { max-width: 100%; margin-top: clamp(22px, 4.8vh, 42px); }
+  .hero-statement p { margin-bottom: 9px; padding: 5px 8px; font-size: .54rem; }
+  .hero-statement h1 { max-width: 360px; font-size: clamp(2.85rem, 11.4vw, 4rem); line-height: 1.3; }
+  .signup-stage { display: grid; gap: 10px; padding-top: 12px; }
   .stage-aside { position: static; display: flex; justify-content: space-between; padding: 0; font-size: .5rem; }
   .stage-content { width: auto; margin: 0; max-width: none; }
-  .stage-copy { max-width: 355px; margin-bottom: 17px; font-size: .88rem; }
+  .stage-copy { max-width: 355px; margin-bottom: 12px; font-size: .84rem; line-height: 1.34; }
+  .stage-form { gap: 8px; }
   .line-input { min-height: 48px; }
   .line-input input { height: 46px; font-size: 1rem; }
   .arrow-submit { width: 48px; height: 48px; }
   .command-button { min-height: 48px; }
+  .back-control { margin: 0; padding: 8px 12px; }
   .stacked-field .line-input { min-height: 48px; }
   .stacked-field .line-input input { height: 46px; }
   .otp-input { height: 48px; }
   .profile-response { grid-template-columns: auto 1fr; }
   .profile-response button { grid-column: 2; width: max-content; }
-  .store-badge { height: 42px; }
+  .final-stage { gap: 12px; }
+  .final-mark { width: 48px; height: 48px; }
+  .store-badge { width: 132px; height: 42px; }
 }
 
 @media (max-width: 380px) {
-  .hero-statement { margin-top: 34px; }
-  .hero-statement h1 { font-size: 3.45rem; }
-  .stage-copy { font-size: .83rem; margin-bottom: 12px; }
+  .hero-statement { margin-top: 20px; }
+  .hero-statement h1 { font-size: 2.66rem; }
+  .stage-copy { font-size: .8rem; margin-bottom: 10px; }
   .stage-aside { display: none; }
-  .signup-stage { padding-top: 17px; }
+  .signup-stage { padding-top: 10px; }
+  .store-badge { width: 126px; height: 40px; }
+}
+
+@media (max-width: 780px) and (max-height: 780px) {
+  .hero-statement { margin-top: 16px; }
+  .hero-statement h1 { font-size: clamp(2.35rem, 10.4vw, 3.35rem); }
+  .signup-stage { gap: 8px; padding-top: 8px; }
+  .stage-aside { display: none; }
+  .stage-copy { font-size: .78rem; margin-bottom: 8px; }
+  .field-label, .stacked-field > span:first-child { font-size: .62rem; }
+  .line-input, .stacked-field .line-input { min-height: 44px; }
+  .line-input input, .stacked-field .line-input input { height: 42px; }
+  .arrow-submit { width: 44px; height: 44px; }
+  .command-button { min-height: 44px; }
+  .otp-input { height: 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
