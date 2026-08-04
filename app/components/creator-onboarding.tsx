@@ -5,9 +5,9 @@ import {
   ArrowRight,
   ArrowUpRight,
   Check,
+  ArrowClockwise,
   GraduationCap,
   InstagramLogo,
-  LockSimple,
   Phone,
   ShieldCheck,
   Sparkle,
@@ -186,6 +186,12 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
     setStage("success");
   }
 
+  function resendCode() {
+    setOtp(["", "", "", "", "", ""]);
+    setError("");
+    requestAnimationFrame(() => otpRefs.current[0]?.focus());
+  }
+
   function resetProfile() {
     setStage("profile");
     setProfile(null);
@@ -215,15 +221,16 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
       </div>
 
       <div className="signup-stage">
+        {(stage === "details" || stage === "otp") && (
+          <button className="back-control" type="button" onClick={goBack}><ArrowLeft size={18} weight="bold" /> Back</button>
+        )}
+
         <div className="stage-aside">
           <span>VF / CREATOR EDITION</span>
           <span>NO PASSWORDS. NO POSTING PERMISSION.</span>
         </div>
 
         <div className="stage-content">
-          {(stage === "details" || stage === "otp") && (
-            <button className="back-control" type="button" onClick={goBack}><ArrowLeft size={18} weight="bold" /> Back</button>
-          )}
           <p className="stage-copy">{copy.copy}</p>
 
           {stage === "profile" && (
@@ -283,7 +290,9 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
               </div>
               {error && <p className="field-error" role="alert">{error}</p>}
               <button className="command-button" type="submit">Verify and enter <ArrowRight size={20} weight="bold" /></button>
-              <p className="quiet-note"><LockSimple size={14} weight="bold" /> For this preview, any six digits work.</p>
+              <button className="resend-code-button" type="button" onClick={resendCode}>
+                <ArrowClockwise size={14} weight="bold" /> Resend code
+              </button>
             </form>
           )}
 
