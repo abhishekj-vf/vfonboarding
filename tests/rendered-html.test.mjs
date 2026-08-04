@@ -38,12 +38,8 @@ test("server-renders the ViralFission creator signup", async () => {
   assert.match(html, /ViralFission/);
   assert.match(html, /Your point of view has a pulse/);
   assert.match(html, /Your Instagram/);
-  assert.match(html, /cinematic-canvas/);
-  assert.equal(
-    (html.match(/cinematic-canvas/g) ?? []).length,
-    1,
-    "the page should render one shared shader canvas",
-  );
+  assert.match(html, /video-backdrop/);
+  assert.match(html, /video-shader-canvas/);
   assert.match(html, /og-creator-signal\.png/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
 });
@@ -92,7 +88,7 @@ test("keeps the interactive experience modular and production-ready", async () =
   assert.match(page, /<SignupExperience \/>/);
   assert.doesNotMatch(page, /"use client"/);
 
-  assert.match(experience, /<CinematicShader/);
+  assert.match(experience, /<VideoBackdrop/);
   assert.match(experience, /<CreatorOnboarding/);
 
   assert.match(onboarding, /"use client"/);

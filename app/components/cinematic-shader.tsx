@@ -2,14 +2,6 @@
 
 import { useEffect, useRef } from "react";
 
-const sceneSources = [
-  "/degas-rehearsal.jpg",
-  "/lerolle-organ-rehearsal.jpg",
-  "/daumier-opinion.jpg",
-] as const;
-
-const sceneAspects = [3811 / 2818, 3919 / 2622, 3430 / 3530] as const;
-
 export type ShaderSettings = {
   dotScale: number;
   dotStrength: number;
@@ -73,30 +65,30 @@ const fragmentShader = `
     return 5.0 / 16.0;
   }
 
-  vec2 coverUv(vec2 uv, float artworkAspect) {
-    float screenAspect = u_resolution.x / u_resolution.y;
-    vec2 outUv = uv;
-    if (screenAspect > artworkAspect) {
-      outUv.y = (uv.y - 0.5) * (artworkAspect / screenAspect) + 0.5;
-    } else {
-      outUv.x = (uv.x - 0.5) * (screenAspect / artworkAspect) + 0.5;
-    }
-    return outUv;
+  vec3 scenePalette(float scene) {
+    if (scene < 0.5) return vec3(0.16, 0.04, 0.24);
+    if (scene < 1.5) return vec3(0.04, 0.16, 0.25);
+    return vec3(0.24, 0.17, 0.03);
   }
 
-  vec3 sampleScene(float scene, vec2 uv) {
-    if (scene < 0.5) return texture2D(u_scene0, coverUv(uv, u_aspects.x)).rgb;
-    if (scene < 1.5) return texture2D(u_scene1, coverUv(uv, u_aspects.y)).rgb;
-    return texture2D(u_scene2, coverUv(uv, u_aspects.z)).rgb;
+  vec3 proceduralScene(float scene, vec2 uv) {
+    vec3 palette = scenePalette(scene);
+    float bands = 0.5 + 0.5 * sin((uv.x * 8.0 + uv.y * 5.0) + scene * 2.7 + u_time * 0.12);
+    float grain = random(floor(uv * vec2(58.0, 42.0)) + scene * 11.0);
+    float pulse = exp(-10.0 * distance(uv, u_pointer));
+    return clamp(palette * (0.76 + bands * 0.18 + grain * 0.08) + pulse * vec3(0.08, 0.13, 0.2), 0.0, 1.0);
   }
 
   void main() {
     vec2 uv = gl_FragCoord.xy / u_resolution;
-    vec3 outgoing = sampleScene(u_from, uv);
-    vec3 incoming = sampleScene(u_to, uv);
+    vec2 flowUv = uv + (u_pointer - 0.5) * 0.035;
+    vec3 outgoing = proceduralScene(u_from, flowUv);
+    vec3 incoming = proceduralScene(u_to, flowUv);
 
     // An ordered print-screen transition: the scene resolves in dithered blocks,
-    // rather than warping the artwork like water.
+    // rather than warping the artwork like water. The shader is deliberately
+    // procedural now, so no silhouette or luminance from the former artwork can
+    // leak through the video wall.
     float blocks = bayer4(floor(gl_FragCoord.xy * 0.38));
     float signalNoise = random(floor(gl_FragCoord.xy * 0.08) + floor(u_time * 3.0));
     float fracture = mix(blocks, signalNoise, 0.24);
@@ -129,7 +121,19 @@ const fragmentShader = `
     printed += pointerHalo * vec3(0.055, 0.095, 0.16) * (0.35 + u_signal * 0.65);
     printed += (random(floor(gl_FragCoord.xy * 0.55) + floor(u_time * 2.0)) - 0.5) * 0.025;
 
-    gl_FragColor = vec4(printed, 1.0);
+    // Keep the print treatment as a transparent shared overlay. This lets the
+    // moving clips stay legible while the halftone, ink channels, and transition
+    // fracture remain visible above the entire wall.
+    float printDots = max(cyanDot, max(redDot, yellowDot));
+    float transitionInk = smoothstep(0.12, 0.92, 1.0 - transition);
+    float overlayAlpha = clamp(
+      0.08 + printDots * 0.28 * u_dotStrength + transitionInk * 0.16 + pointerHalo * 0.18,
+      0.04,
+      0.48
+    );
+    vec3 ink = mix(vec3(0.015, 0.01, 0.03), vec3(0.84, 0.96, 0.12), printDots * 0.68);
+    ink = mix(ink, printed, 0.18);
+    gl_FragColor = vec4(ink, overlayAlpha);
   }
 `;
 
@@ -173,8 +177,9 @@ export function CinematicShader({ scene, signal, settings }: CinematicShaderProp
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const gl = canvas.getContext("webgl", { alpha: false, antialias: false });
+    const gl = canvas.getContext("webgl", { alpha: true, antialias: false });
     if (!gl) return;
+    gl.clearColor(0, 0, 0, 0);
 
     const vertex = compileShader(gl, gl.VERTEX_SHADER, vertexShader);
     const fragment = compileShader(gl, gl.FRAGMENT_SHADER, fragmentShader);
@@ -194,42 +199,8 @@ export function CinematicShader({ scene, signal, settings }: CinematicShaderProp
       gl.STATIC_DRAW,
     );
 
-    const textures = sceneSources.map((source) => {
-      const texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-      gl.texImage2D(
-        gl.TEXTURE_2D,
-        0,
-        gl.RGBA,
-        1,
-        1,
-        0,
-        gl.RGBA,
-        gl.UNSIGNED_BYTE,
-        new Uint8Array([21, 16, 28, 255]),
-      );
-
-      const image = new Image();
-      image.decoding = "async";
-      image.src = source;
-      image.onload = () => {
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-      };
-      return { image, texture };
-    });
-
     const position = gl.getAttribLocation(program, "a_position");
     const locations = {
-      scene0: gl.getUniformLocation(program, "u_scene0"),
-      scene1: gl.getUniformLocation(program, "u_scene1"),
-      scene2: gl.getUniformLocation(program, "u_scene2"),
-      aspects: gl.getUniformLocation(program, "u_aspects"),
       resolution: gl.getUniformLocation(program, "u_resolution"),
       pointer: gl.getUniformLocation(program, "u_pointer"),
       time: gl.getUniformLocation(program, "u_time"),
@@ -273,14 +244,6 @@ export function CinematicShader({ scene, signal, settings }: CinematicShaderProp
       gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       gl.enableVertexAttribArray(position);
       gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
-      textures.forEach(({ texture }, index) => {
-        gl.activeTexture(gl.TEXTURE0 + index);
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-      });
-      gl.uniform1i(locations.scene0, 0);
-      gl.uniform1i(locations.scene1, 1);
-      gl.uniform1i(locations.scene2, 2);
-      gl.uniform3f(locations.aspects, sceneAspects[0], sceneAspects[1], sceneAspects[2]);
       gl.uniform2f(locations.resolution, canvas.width, canvas.height);
       gl.uniform2f(locations.pointer, pointer.x, pointer.y);
       gl.uniform1f(locations.time, now / 1000);
@@ -317,10 +280,6 @@ export function CinematicShader({ scene, signal, settings }: CinematicShaderProp
       cancelAnimationFrame(frame);
       window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("resize", onResize);
-      textures.forEach(({ image, texture }) => {
-        image.onload = null;
-        gl.deleteTexture(texture);
-      });
       gl.deleteBuffer(buffer);
       gl.deleteProgram(program);
       gl.deleteShader(vertex);

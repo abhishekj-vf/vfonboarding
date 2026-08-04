@@ -48,30 +48,102 @@ button, a { -webkit-tap-highlight-color: transparent; }
   background: #111017;
 }
 
-.cinematic-canvas {
+.video-backdrop {
   position: fixed;
   z-index: 0;
   inset: 0;
-  width: 100vw;
-  height: 100svh;
-  display: block;
+  overflow: hidden;
+  background: #171319;
 }
 
-.signal-grain {
-  position: fixed;
+.video-grid {
+  position: absolute;
+  inset: -12vh -1.5vw;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(8px, 1.15vw, 18px);
+  transform: rotate(-1.5deg) scale(1.04);
+  opacity: .92;
+}
+
+.video-column {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.video-column-track {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(8px, 1.15vw, 18px);
+  will-change: transform;
+  animation: video-marquee-up 46s linear infinite;
+}
+
+.video-column.is-reverse .video-column-track {
+  animation-name: video-marquee-down;
+  animation-duration: 52s;
+}
+
+.video-tile {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: clamp(10px, 1.35vw, 22px);
+  background: #28202a;
+  box-shadow: 0 18px 44px rgba(0,0,0,.2);
+}
+
+.video-tile video,
+.mobile-video-frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  filter: saturate(1.12) contrast(1.06);
+  transition: opacity 220ms ease;
+}
+
+.video-tile video.is-shader-hidden {
+  opacity: 0;
+}
+
+.video-shader-canvas {
+  position: absolute;
   z-index: 1;
   inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
   pointer-events: none;
-  opacity: 0.38;
-  background-image:
-    repeating-linear-gradient(0deg, rgba(255,255,255,0.07) 0 1px, transparent 1px 3px),
-    radial-gradient(circle at 20% 40%, rgba(214,255,33,0.12), transparent 28%);
-  mix-blend-mode: screen;
+}
+
+.mobile-video-frame { display: none; }
+
+.video-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, rgba(8,7,12,.76), rgba(8,7,12,.08) 42%, rgba(8,7,12,.6)),
+    linear-gradient(180deg, rgba(8,7,12,.42), transparent 28%, transparent 68%, rgba(8,7,12,.74));
+}
+
+@keyframes video-marquee-up {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(0, -50%, 0); }
+}
+
+@keyframes video-marquee-down {
+  from { transform: translate3d(0, -50%, 0); }
+  to { transform: translate3d(0, 0, 0); }
 }
 
 .onboarding-panel {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -465,6 +537,26 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 @media (max-width: 780px) {
   .onboarding-panel { height: 100svh; overflow: hidden; padding: 18px 18px 18px; }
+  .video-grid { display: none; }
+  .mobile-video-frame {
+    position: absolute;
+    inset: 0;
+    display: block;
+  }
+  .mobile-video-frame .video-tile {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .mobile-video-frame video { object-position: center; }
+  .video-vignette {
+    background:
+      linear-gradient(180deg, rgba(8,7,12,.5), rgba(8,7,12,.08) 32%, rgba(8,7,12,.72)),
+      linear-gradient(90deg, rgba(8,7,12,.58), transparent 60%, rgba(8,7,12,.32));
+  }
   .experience-header { grid-template-columns: 1fr auto; gap: 10px; }
   .edition-mark { display: none; }
   .signal-mark { font-size: .59rem; }
@@ -533,4 +625,5 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  .video-column-track { animation: none !important; }
 }
