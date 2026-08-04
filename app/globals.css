@@ -1,5 +1,21 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "VF Nunito";
+  src: url("/fonts/nunito-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 1000;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "VF DM Serif Display";
+  src: url("/fonts/dm-serif-display-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
 :root {
   --paper: #f4eee4;
   --ink: #0d0c11;
@@ -17,7 +33,7 @@ body {
   margin: 0;
   color: var(--paper);
   background: #0d0c11;
-  font-family: var(--font-nunito), sans-serif;
+  font-family: "VF Nunito", sans-serif;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -155,7 +171,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   max-width: 1040px;
   margin: 0;
   color: #fffdf6;
-  font-family: var(--font-dm-serif), serif;
+  font-family: "VF DM Serif Display", serif;
   font-size: clamp(4.7rem, 8.7vw, 10.4rem);
   font-weight: 400;
   line-height: 0.8;

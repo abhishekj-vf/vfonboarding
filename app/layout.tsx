@@ -1,20 +1,6 @@
 import type { Metadata } from "next";
-import { DM_Serif_Display, Nunito } from "next/font/google";
 import { headers } from "next/headers";
 import "./globals.css";
-
-const nunito = Nunito({
-  variable: "--font-nunito",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const dmSerif = DM_Serif_Display({
-  variable: "--font-dm-serif",
-  subsets: ["latin"],
-  weight: "400",
-  display: "swap",
-});
 
 export async function generateMetadata(): Promise<Metadata> {
   const requestHeaders = await headers();
@@ -62,7 +48,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${nunito.variable} ${dmSerif.variable}`}>
+      <body>
         {children}
       </body>
     </html>
