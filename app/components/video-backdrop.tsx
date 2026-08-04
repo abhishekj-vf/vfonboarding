@@ -2,17 +2,28 @@
 
 import { useEffect, useRef, useState } from "react";
 
-const desktopColumns = [
+const initialDesktopColumns: string[][] = [
   ["/videos/clip-01.mp4", "/videos/clip-04.mp4", "/videos/clip-07.mp4", "/videos/clip-10.mp4"],
   ["/videos/clip-02.mp4", "/videos/clip-05.mp4", "/videos/clip-08.mp4", "/videos/clip-11.mp4"],
   ["/videos/clip-03.mp4", "/videos/clip-06.mp4", "/videos/clip-09.mp4", "/videos/clip-12.mp4"],
-] as const;
+];
 
-const mobileScenes = [
+const initialMobileScenes = [
   "/videos/clip-01.mp4",
   "/videos/clip-06.mp4",
   "/videos/clip-11.mp4",
-] as const;
+];
+
+const videoPool = Array.from({ length: 17 }, (_, index) => `/videos/clip-${String(index + 1).padStart(2, "0")}.mp4`);
+
+function shuffle<T>(values: readonly T[]) {
+  const copy = [...values];
+  for (let index = copy.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [copy[index], copy[swapIndex]] = [copy[swapIndex], copy[index]];
+  }
+  return copy;
+}
 
 type VideoBackdropProps = {
   scene: number;
@@ -281,6 +292,8 @@ function VideoTile({ source, variant, signal }: { source: string; variant: numbe
 
 export function VideoBackdrop({ scene, signal }: VideoBackdropProps) {
   const [isDesktop, setIsDesktop] = useState(false);
+  const [desktopColumns, setDesktopColumns] = useState<string[][]>(initialDesktopColumns);
+  const [mobileScenes, setMobileScenes] = useState<string[]>(initialMobileScenes);
   const mobileSource = mobileScenes[Math.abs(scene) % mobileScenes.length];
 
   useEffect(() => {
@@ -289,6 +302,29 @@ export function VideoBackdrop({ scene, signal }: VideoBackdropProps) {
     updateViewport();
     media.addEventListener("change", updateViewport);
     return () => media.removeEventListener("change", updateViewport);
+  }, []);
+
+  useEffect(() => {
+    const randomized = shuffle(videoPool);
+    try {
+      const previousFirst = window.sessionStorage.getItem("vf-mobile-first-video");
+      if (previousFirst && randomized[0] === previousFirst) {
+        [randomized[0], randomized[1]] = [randomized[1], randomized[0]];
+      }
+      window.sessionStorage.setItem("vf-mobile-first-video", randomized[0]);
+    } catch {
+      // Storage can be unavailable in private browsing; randomness still works.
+    }
+
+    const randomizeFrame = window.requestAnimationFrame(() => {
+      setMobileScenes(randomized.slice(0, 3));
+      setDesktopColumns([
+        randomized.slice(3, 7),
+        randomized.slice(7, 11),
+        randomized.slice(11, 15),
+      ]);
+    });
+    return () => window.cancelAnimationFrame(randomizeFrame);
   }, []);
 
   return (
