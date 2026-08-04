@@ -226,7 +226,7 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
         <h1>{copy.title}</h1>
       </div>
 
-      <div className="signup-stage">
+      <div className={`signup-stage is-${stage}`}>
         <div className="stage-context">
           {(stage === "details" || stage === "otp") && (
             <button className="back-control" type="button" onClick={goBack}><ArrowLeft size={18} weight="bold" /> Back</button>
