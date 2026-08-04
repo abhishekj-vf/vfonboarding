@@ -184,7 +184,7 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
       return;
     }
     if (code !== "111111") {
-      setError("Invalid code. Use 111111 for this prototype.");
+      setError("invalid code. try again or resend");
       return;
     }
     setError("");
@@ -205,6 +205,7 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
   }
 
   const copy = stageCopy[stage];
+  const showOtpError = stage === "otp" && Boolean(error);
 
   return (
     <section className="onboarding-panel" aria-label="Creator signup">
@@ -289,9 +290,9 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
           {stage === "otp" && (
             <form onSubmit={verifyOtp} className="stage-form" noValidate>
               <span className="field-label">Six-digit verification code</span>
-              <div className="otp-row">
+              <div className={`otp-row${showOtpError ? " is-error" : ""}`}>
                 {otp.map((digit, index) => (
-                  <input key={index} ref={(element) => { otpRefs.current[index] = element; }} className="otp-input" value={digit} onChange={(event) => updateOtp(index, event.target.value)} onKeyDown={(event) => handleOtpKeyDown(index, event)} onFocus={(event) => event.target.select()} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} aria-label={`Digit ${index + 1}`} maxLength={1} />
+                  <input key={index} ref={(element) => { otpRefs.current[index] = element; }} className="otp-input" value={digit} onChange={(event) => updateOtp(index, event.target.value)} onKeyDown={(event) => handleOtpKeyDown(index, event)} onFocus={(event) => event.target.select()} inputMode="numeric" autoComplete={index === 0 ? "one-time-code" : "off"} aria-label={`Digit ${index + 1}`} aria-invalid={showOtpError} maxLength={1} />
                 ))}
               </div>
               {error && <p className="field-error" role="alert">{error}</p>}
