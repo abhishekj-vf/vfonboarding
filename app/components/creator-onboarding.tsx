@@ -178,8 +178,13 @@ export function CreatorOnboarding({ onVisualChange }: CreatorOnboardingProps) {
 
   function verifyOtp(event: FormEvent) {
     event.preventDefault();
-    if (otp.some((digit) => !digit)) {
+    const code = otp.join("");
+    if (code.length < otp.length) {
       setError("Enter all 6 digits to continue.");
+      return;
+    }
+    if (code !== "111111") {
+      setError("Invalid code. Use 111111 for this prototype.");
       return;
     }
     setError("");
