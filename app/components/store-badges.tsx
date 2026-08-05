@@ -4,7 +4,7 @@ export function StoreBadges() {
   return (
     <div className="store-links">
       <a
-        className="store-badge"
+        className="store-badge app-store-link"
         href={brand.appStoreUrl}
         target="_blank"
         rel="noreferrer"
@@ -12,12 +12,12 @@ export function StoreBadges() {
       >
         <img
           className="app-store-badge"
-          src="/download-on-app-store.svg"
+          src="/AppStore.svg"
           alt=""
         />
       </a>
       <a
-        className="store-badge"
+        className="store-badge google-play-link"
         href={brand.playStoreUrl}
         target="_blank"
         rel="noreferrer"
@@ -25,7 +25,7 @@ export function StoreBadges() {
       >
         <img
           className="google-play-badge"
-          src="/get-it-on-google-play.png"
+          src="/googlePlay.svg"
           alt=""
         />
       </a>

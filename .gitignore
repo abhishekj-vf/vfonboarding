@@ -41,4 +41,5 @@ next-env.d.ts
 /outputs/
 /work/
 /.sites-dev*.log
+/.local-preview*.log
 /_node_modules_incomplete_backup/

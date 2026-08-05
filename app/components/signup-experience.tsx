@@ -4,7 +4,11 @@ import { useCallback, useState } from "react";
 import { CreatorOnboarding } from "./creator-onboarding";
 import { VideoBackdrop } from "./video-backdrop";
 
-export function SignupExperience() {
+type SignupExperienceProps = {
+  mobileGrid?: boolean;
+};
+
+export function SignupExperience({ mobileGrid = false }: SignupExperienceProps) {
   const [scene, setScene] = useState(0);
   const [signal, setSignal] = useState(0);
 
@@ -18,7 +22,7 @@ export function SignupExperience() {
 
   return (
     <main className="site-shell">
-      <VideoBackdrop scene={scene} signal={signal} />
+      <VideoBackdrop scene={scene} signal={signal} mobileGrid={mobileGrid} />
       <CreatorOnboarding onVisualChange={updateVisualState} />
     </main>
   );

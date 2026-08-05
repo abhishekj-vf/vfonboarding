@@ -28,6 +28,7 @@ function shuffle<T>(values: readonly T[]) {
 type VideoBackdropProps = {
   scene: number;
   signal: number;
+  mobileGrid?: boolean;
 };
 
 const tileVertexShader = `
@@ -290,11 +291,13 @@ function VideoTile({ source, variant, signal }: { source: string; variant: numbe
   );
 }
 
-export function VideoBackdrop({ scene, signal }: VideoBackdropProps) {
+export function VideoBackdrop({ scene, signal, mobileGrid = false }: VideoBackdropProps) {
   const [isDesktop, setIsDesktop] = useState(false);
   const [desktopColumns, setDesktopColumns] = useState<string[][]>(initialDesktopColumns);
   const [mobileScenes, setMobileScenes] = useState<string[]>(initialMobileScenes);
   const mobileSource = mobileScenes[Math.abs(scene) % mobileScenes.length];
+  const showGrid = isDesktop || mobileGrid;
+  const showMobileFrame = !isDesktop && !mobileGrid;
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 781px)");
@@ -328,8 +331,8 @@ export function VideoBackdrop({ scene, signal }: VideoBackdropProps) {
   }, []);
 
   return (
-    <div className="video-backdrop" aria-hidden="true">
-      {isDesktop && (
+    <div className={`video-backdrop${mobileGrid ? " is-mobile-grid" : ""}`} aria-hidden="true">
+      {showGrid && (
         <div className="video-grid">
           {desktopColumns.map((column, columnIndex) => {
             const loopedColumn = [...column, ...column];
@@ -349,7 +352,7 @@ export function VideoBackdrop({ scene, signal }: VideoBackdropProps) {
         </div>
       )}
 
-      {!isDesktop && (
+      {showMobileFrame && (
         <div className="mobile-video-frame">
           <VideoTile key={mobileSource} source={mobileSource} variant={scene} signal={signal} />
         </div>
